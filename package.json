@@ -1,0 +1,19 @@
+{
+  "name": "netmap-industrial",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NetMap Industrial — monorepo (backend + frontend)",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "dev:api": "npm run dev --prefix backend",
+    "dev:web": "npm run dev --prefix frontend",
+    "test": "npm test --prefix backend",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down",
+    "install:all": "npm install --prefix backend && npm install --prefix frontend"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
