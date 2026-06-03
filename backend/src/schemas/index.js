@@ -35,6 +35,8 @@ const createVlanSchema = z.object({
   description: z.string().optional().nullable(),
 });
 
+const updateVlanSchema = createVlanSchema.partial();
+
 const updatePortSchema = z.object({
   status: portStatus.optional(),
   vlan_id: z.coerce.number().int().positive().optional().nullable(),
@@ -66,6 +68,7 @@ module.exports = {
   createSwitchSchema,
   updateSwitchSchema,
   createVlanSchema,
+  updateVlanSchema,
   updatePortSchema,
   createPortSchema,
   searchQuerySchema,

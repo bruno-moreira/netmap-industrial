@@ -77,6 +77,10 @@ export interface SwitchPort {
   device_status?: DeviceStatus;
   device_type_name?: string;
   device_type_color?: string;
+  connected_switch_id?: number;
+  connected_switch_name?: string;
+  connected_switch_ip?: string;
+  connected_switch_location?: string;
   is_trunk?: boolean;
   label?: string;
   display_color?: string;
@@ -96,6 +100,7 @@ export interface UpdatePortPayload {
   status?: PortStatus;
   vlan_id?: number | null;
   connected_device_id?: number | null;
+  connected_switch_id?: number | null;
   label?: string | null;
   is_trunk?: boolean;
 }
@@ -114,4 +119,15 @@ export interface CreateVlanPayload {
   name: string;
   color?: string;
   description?: string;
+}
+
+export interface CreateSwitchPayload {
+  name: string;
+  ip_address?: string;
+  brand?: string;
+  model?: string;
+  rack_id?: string;
+  location?: string;
+  snmp_community?: string;
+  port_count?: number;
 }

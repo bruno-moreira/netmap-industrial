@@ -27,13 +27,17 @@ export function DevicesPage() {
     mutationFn: devicesApi.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['devices'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       setShowForm(false);
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: devicesApi.remove,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['devices'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['devices'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
   });
 
   function exportCsv() {

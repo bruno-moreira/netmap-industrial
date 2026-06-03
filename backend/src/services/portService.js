@@ -1,5 +1,6 @@
 const portModel = require('../model/portModel');
 const deviceModel = require('../model/deviceModel');
+const switchModel = require('../model/switchModel');
 const vlanModel = require('../model/vlanModel');
 const { HttpError } = require('../utils/HttpError');
 const { getPortDisplayColor, isValidMac, normalizeMac } = require('../utils/networkValidators');
@@ -28,6 +29,20 @@ async function update(id, payload) {
     if (!device) throw new HttpError(400, 'Equipamento conectado inválido');
     if (!payload.mac_address) payload.mac_address = device.mac_address;
     if (!payload.status) payload.status = 'connected';
+    // Se conectar a um dispositivo, desconectar de switch
+    payload.connected_switch_id = null;
+  }
+
+  if (payload.connected_switch_id) {
+    const sw = await switchModel.findById(payload.connected_switch_id);
+    if (!sw) throw new HttpError(400, 'Switch conectado inválido');
+    // Não pode conectar a si mesmo
+    if (sw.id === current.switch_id) {
+      throw new HttpError(400, 'Não é possível conectar o switch a si mesmo');
+    }
+    if (!payload.status) payload.status = 'connected';
+    // Se conectar a um switch, desconectar de dispositivo
+    payload.connected_device_id = null;
   }
 
   if (payload.mac_address && !isValidMac(payload.mac_address)) {

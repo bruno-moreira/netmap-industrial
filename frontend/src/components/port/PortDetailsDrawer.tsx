@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { X, History } from 'lucide-react';
 import { useNetworkStore } from '@/stores/useNetworkStore';
-import { portsApi, devicesApi, vlansApi } from '@/services/api';
+import { portsApi, devicesApi, vlansApi, switchesApi } from '@/services/api';
 import { PORT_STATUS_LABELS } from '@/utils/colorRules';
+import type { Device, Switch } from '@/types/network';
 
 export function PortDetailsDrawer() {
   const { selectedPort, setSelectedPort } = useNetworkStore();
@@ -17,6 +18,12 @@ export function PortDetailsDrawer() {
   const { data: devices = [] } = useQuery({
     queryKey: ['devices'],
     queryFn: () => devicesApi.list(),
+    enabled: !!selectedPort,
+  });
+
+  const { data: switches = [] } = useQuery({
+    queryKey: ['switches'],
+    queryFn: () => switchesApi.list(),
     enabled: !!selectedPort,
   });
 
@@ -40,6 +47,37 @@ export function PortDetailsDrawer() {
   if (!selectedPort) return null;
 
   const close = () => setSelectedPort(null);
+
+  // Combine devices and switches for the dropdown, filter current switch
+  const combinedOptions = [
+    ...devices.map(d => ({ id: d.id, type: 'device' as const, name: d.name, ip: d.ip_address || d.type_name })),
+    ...switches.filter(s => s.id !== selectedPort.switch_id).map(s => ({ id: s.id, type: 'switch' as const, name: s.name, ip: s.ip_address || 'Switch' })),
+  ];
+
+  // Get current selected value for the dropdown
+  const getCurrentOptionValue = () => {
+    if (port?.connected_device_id) {
+      return `device-${port.connected_device_id}`;
+    }
+    if (port?.connected_switch_id) {
+      return `switch-${port.connected_switch_id}`;
+    }
+    return '';
+  };
+
+  const handleOptionChange = (value: string) => {
+    if (!value) {
+      updateMutation.mutate({ connected_device_id: null, connected_switch_id: null, status: 'free' });
+      return;
+    }
+    const [type, idStr] = value.split('-');
+    const id = Number(idStr);
+    if (type === 'device') {
+      updateMutation.mutate({ connected_device_id: id, connected_switch_id: null });
+    } else if (type === 'switch') {
+      updateMutation.mutate({ connected_switch_id: id, connected_device_id: null });
+    }
+  };
 
   return (
   <>
@@ -68,11 +106,11 @@ export function PortDetailsDrawer() {
             <section className="grid grid-cols-2 gap-3 text-sm">
               <Info label="Status" value={PORT_STATUS_LABELS[port.status] || port.status} />
               <Info label="VLAN" value={port.vlan_name ? `${port.vlan_number} — ${port.vlan_name}` : '—'} />
-              <Info label="Equipamento" value={port.device_name || port.label || '—'} />
-              <Info label="Tipo" value={port.device_type_name || '—'} />
-              <Info label="IP" value={port.device_ip || '—'} mono />
+              <Info label="Equipamento" value={port.device_name || port.connected_switch_name || port.label || '—'} />
+              <Info label="Tipo" value={port.device_type_name || (port.connected_switch_id ? 'Switch' : '—')} />
+              <Info label="IP" value={port.device_ip || port.connected_switch_ip || '—'} mono />
               <Info label="MAC" value={port.device_mac || port.mac_address || '—'} mono />
-              <Info label="Localização" value={port.device_location || '—'} />
+              <Info label="Localização" value={port.device_location || port.connected_switch_location || '—'} />
               <Info label="Trunk" value={port.is_trunk ? 'Sim' : 'Não'} />
             </section>
 
@@ -134,18 +172,13 @@ export function PortDetailsDrawer() {
                 Equipamento
                 <select
                   className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
-                  value={port.connected_device_id ?? ''}
-                  onChange={(e) =>
-                    updateMutation.mutate({
-                      connected_device_id: e.target.value ? Number(e.target.value) : null,
-                      status: e.target.value ? 'connected' : 'free',
-                    })
-                  }
+                  value={getCurrentOptionValue()}
+                  onChange={(e) => handleOptionChange(e.target.value)}
                 >
                   <option value="">Nenhum</option>
-                  {devices.map((d) => (
-                    <option key={d.id} value={d.id}>
-                      {d.name} ({d.ip_address || d.type_name})
+                  {combinedOptions.map((opt) => (
+                    <option key={`${opt.type}-${opt.id}`} value={`${opt.type}-${opt.id}`}>
+                      {opt.name} ({opt.type === 'switch' ? 'Switch' : opt.ip})
                     </option>
                   ))}
                 </select>

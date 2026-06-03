@@ -23,6 +23,9 @@ export const switchesApi = {
   list: () => api.get<Switch[]>('/switches').then((r) => r.data),
   getById: (id: number) =>
     api.get<Switch>(`/switches/${id}`, { params: { ports: true } }).then((r) => r.data),
+  create: (data: CreateDevicePayload) => api.post<Switch>('/switches', data).then((r) => r.data),
+  update: (id: number, data: Partial<CreateDevicePayload>) => api.put<Switch>(`/switches/${id}`, data).then((r) => r.data),
+  remove: (id: number) => api.delete(`/switches/${id}`),
 };
 
 export const portsApi = {

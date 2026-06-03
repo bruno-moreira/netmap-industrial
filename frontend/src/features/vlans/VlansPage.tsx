@@ -18,6 +18,7 @@ export function VlansPage() {
     mutationFn: vlansApi.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vlans'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       setShowForm(false);
     },
   });

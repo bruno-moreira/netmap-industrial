@@ -6,12 +6,15 @@ const PORT_SELECT = `
     d.name AS device_name, d.ip_address AS device_ip, d.mac_address AS device_mac,
     d.location AS device_location, d.status AS device_status,
     dt.slug AS device_type_slug, dt.name AS device_type_name, dt.color AS device_type_color,
-    s.name AS switch_name
+    s.name AS switch_name,
+    cs.name AS connected_switch_name, cs.ip_address AS connected_switch_ip,
+    cs.location AS connected_switch_location
   FROM switch_ports sp
   JOIN switches s ON s.id = sp.switch_id
   LEFT JOIN vlans v ON v.id = sp.vlan_id
   LEFT JOIN devices d ON d.id = sp.connected_device_id
   LEFT JOIN device_types dt ON dt.id = d.device_type_id
+  LEFT JOIN switches cs ON cs.id = sp.connected_switch_id
 `;
 
 async function findById(id) {
@@ -29,8 +32,8 @@ async function findBySwitchId(switchId) {
 
 async function create(data) {
   const { rows } = await pool.query(
-    `INSERT INTO switch_ports (switch_id, port_number, status, vlan_id, mac_address, connected_device_id, is_trunk, label)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    `INSERT INTO switch_ports (switch_id, port_number, status, vlan_id, mac_address, connected_device_id, connected_switch_id, is_trunk, label)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
      RETURNING id`,
     [
       data.switch_id,
@@ -39,6 +42,7 @@ async function create(data) {
       data.vlan_id || null,
       data.mac_address || null,
       data.connected_device_id || null,
+      data.connected_switch_id || null,
       data.is_trunk || false,
       data.label || null,
     ]
@@ -53,7 +57,7 @@ async function update(id, data) {
   const fields = [];
   const params = [];
   let idx = 1;
-  const allowed = ['status', 'vlan_id', 'mac_address', 'connected_device_id', 'is_trunk', 'label'];
+  const allowed = ['status', 'vlan_id', 'mac_address', 'connected_device_id', 'connected_switch_id', 'is_trunk', 'label'];
 
   for (const key of allowed) {
     if (data[key] !== undefined) {

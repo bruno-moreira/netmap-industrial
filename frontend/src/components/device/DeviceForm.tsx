@@ -19,9 +19,10 @@ interface DeviceFormProps {
   defaultValues?: Partial<DeviceFormData>;
   onSubmit: (data: DeviceFormData) => void;
   isLoading?: boolean;
+  includeSwitch?: boolean;
 }
 
-export function DeviceForm({ types, defaultValues, onSubmit, isLoading }: DeviceFormProps) {
+export function DeviceForm({ types, defaultValues, onSubmit, isLoading, includeSwitch = false }: DeviceFormProps) {
   const {
     register,
     handleSubmit,
@@ -34,6 +35,11 @@ export function DeviceForm({ types, defaultValues, onSubmit, isLoading }: Device
     },
   });
 
+  // Filtrar tipos para remover Switch se necessário
+  const filteredTypes = includeSwitch
+    ? types
+    : types.filter(t => t.name.toLowerCase() !== 'switch');
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <Field label="Nome" error={errors.name?.message}>
@@ -42,7 +48,7 @@ export function DeviceForm({ types, defaultValues, onSubmit, isLoading }: Device
       <Field label="Tipo" error={errors.device_type_id?.message}>
         <select {...register('device_type_id')} className={inputClass}>
           <option value="">Selecione...</option>
-          {types.map((t) => (
+          {filteredTypes.map((t) => (
             <option key={t.id} value={t.id}>
               {t.name}
             </option>

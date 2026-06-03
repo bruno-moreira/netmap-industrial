@@ -70,7 +70,8 @@ CREATE TABLE vlans (
   name        VARCHAR(100) NOT NULL,
   color       VARCHAR(20)  NOT NULL DEFAULT '#3b82f6',
   description TEXT,
-  created_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+  created_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
 COMMENT ON TABLE vlans IS 'VLANs da rede industrial (cor usada no mapa visual)';
@@ -185,6 +186,10 @@ CREATE TRIGGER trg_devices_updated
 
 CREATE TRIGGER trg_switch_ports_updated
   BEFORE UPDATE ON switch_ports
+  FOR EACH ROW EXECUTE PROCEDURE set_updated_at();
+
+CREATE TRIGGER trg_vlans_updated
+  BEFORE UPDATE ON vlans
   FOR EACH ROW EXECUTE PROCEDURE set_updated_at();
 
 -- -----------------------------------------------------------------------------
