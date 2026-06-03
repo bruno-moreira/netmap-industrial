@@ -1,7 +1,8 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import type { CreateSwitchPayload } from '@/types/network';
+// Unused type import kept for potential future use
+// import type { CreateSwitchPayload } from '@/types/network';
 
 const schema = z.object({
   name: z.string().min(1, 'Nome obrigatório'),
