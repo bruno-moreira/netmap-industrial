@@ -8,6 +8,7 @@ import { SwitchesPage } from '@/features/switches/SwitchesPage';
 import { SwitchDetailPage } from '@/features/switches/SwitchDetailPage';
 import { DevicesPage } from '@/features/devices/DevicesPage';
 import { VlansPage } from '@/features/vlans/VlansPage';
+import { UsersPage } from '@/features/users/UsersPage';
 import { SettingsPage } from '@/features/settings/SettingsPage';
 
 function PrivateRoute({ children }: { children: ReactNode }) {
@@ -34,6 +35,7 @@ export function AppRoutes() {
         <Route path="/switches/:id" element={<SwitchDetailPage />} />
         <Route path="/devices" element={<DevicesPage />} />
         <Route path="/vlans" element={<VlansPage />} />
+        <Route path="/users" element={<UsersPage />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Route>
       <Route path="/" element={<Navigate to="/dashboard" replace />} />

@@ -1,38 +1,51 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import type { UserRole } from '@/types/network';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
-interface AuthUser {
-  email: string;
+interface User {
+  id: number;
   name: string;
-  role: UserRole;
+  email: string;
+  role: string;
+  roleName: string;
+  tenant: {
+    id: number;
+    name: string;
+    slug: string;
+  };
 }
 
 interface AuthState {
-  user: AuthUser | null;
-  login: (email: string, password: string) => boolean;
+  user: User | null;
+  accessToken: string | null;
+  refreshToken: string | null;
+  isAuthenticated: boolean;
+  setUser: (user: User) => void;
+  setTokens: (accessToken: string, refreshToken: string) => void;
   logout: () => void;
 }
 
-/** Login MVP local — substituir por JWT quando o backend tiver auth */
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
-      login: (email, password) => {
-        if (!email.trim() || !password.trim()) return false;
-        const role: UserRole = email.includes('admin') ? 'admin' : 'technical';
+      accessToken: null,
+      refreshToken: null,
+      isAuthenticated: false,
+      setUser: (user) =>
+        set({ user, isAuthenticated: true }),
+      setTokens: (accessToken, refreshToken) =>
+        set({ accessToken, refreshToken }),
+      logout: () =>
         set({
-          user: {
-            email,
-            name: email.split('@')[0],
-            role,
-          },
-        });
-        return true;
-      },
-      logout: () => set({ user: null }),
+          user: null,
+          accessToken: null,
+          refreshToken: null,
+          isAuthenticated: false
+        })
     }),
-    { name: 'netmap-auth' }
+    {
+      name: 'netmap-auth-storage',
+      storage: createJSONStorage(() => localStorage)
+    }
   )
 );

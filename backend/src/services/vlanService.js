@@ -1,29 +1,29 @@
 const vlanModel = require('../model/vlanModel');
 const { HttpError } = require('../utils/HttpError');
 
-async function list() {
-  return vlanModel.findAll();
+async function list(tenantId) {
+  return vlanModel.findAll(tenantId);
 }
 
-async function getById(id) {
-  const vlan = await vlanModel.findById(id);
+async function getById(id, tenantId) {
+  const vlan = await vlanModel.findById(id, tenantId);
   if (!vlan) throw new HttpError(404, 'VLAN não encontrada');
   return vlan;
 }
 
-async function create(payload) {
+async function create(payload, tenantId, userId) {
   try {
-    return await vlanModel.create(payload);
+    return await vlanModel.create(payload, tenantId, userId);
   } catch (err) {
     if (err.code === '23505') throw new HttpError(409, 'Número de VLAN já cadastrado');
     throw err;
   }
 }
 
-async function update(id, payload) {
-  await getById(id);
+async function update(id, payload, tenantId, userId) {
+  await getById(id, tenantId);
   try {
-    const updated = await vlanModel.update(id, payload);
+    const updated = await vlanModel.update(id, payload, tenantId, userId);
     if (!updated) throw new HttpError(404, 'VLAN não encontrada');
     return updated;
   } catch (err) {
@@ -32,9 +32,9 @@ async function update(id, payload) {
   }
 }
 
-async function remove(id) {
-  await getById(id);
-  const deleted = await vlanModel.remove(id);
+async function remove(id, tenantId) {
+  await getById(id, tenantId);
+  const deleted = await vlanModel.remove(id, tenantId);
   if (!deleted) throw new HttpError(404, 'VLAN não encontrada');
 }
 

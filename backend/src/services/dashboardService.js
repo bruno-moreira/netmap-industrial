@@ -1,7 +1,7 @@
 const dashboardModel = require('../model/dashboardModel');
 
-async function getDashboard() {
-  return dashboardModel.getStats();
+async function getDashboard(tenantId) {
+  return dashboardModel.getStats(tenantId);
 }
 
 module.exports = { getDashboard };

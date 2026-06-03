@@ -17,23 +17,23 @@ const PORT_SELECT = `
   LEFT JOIN switches cs ON cs.id = sp.connected_switch_id
 `;
 
-async function findById(id) {
-  const { rows } = await pool.query(`${PORT_SELECT} WHERE sp.id = $1`, [id]);
+async function findById(id, tenantId) {
+  const { rows } = await pool.query(`${PORT_SELECT} WHERE sp.id = $1 AND sp.tenant_id = $2`, [id, tenantId]);
   return rows[0] || null;
 }
 
-async function findBySwitchId(switchId) {
+async function findBySwitchId(switchId, tenantId) {
   const { rows } = await pool.query(
-    `${PORT_SELECT} WHERE sp.switch_id = $1 ORDER BY sp.port_number ASC`,
-    [switchId]
+    `${PORT_SELECT} WHERE sp.switch_id = $1 AND sp.tenant_id = $2 ORDER BY sp.port_number ASC`,
+    [switchId, tenantId]
   );
   return rows;
 }
 
-async function create(data) {
+async function create(data, tenantId, userId) {
   const { rows } = await pool.query(
-    `INSERT INTO switch_ports (switch_id, port_number, status, vlan_id, mac_address, connected_device_id, connected_switch_id, is_trunk, label)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    `INSERT INTO switch_ports (switch_id, port_number, status, vlan_id, mac_address, connected_device_id, connected_switch_id, is_trunk, label, tenant_id, created_by, updated_by)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
      RETURNING id`,
     [
       data.switch_id,
@@ -45,13 +45,16 @@ async function create(data) {
       data.connected_switch_id || null,
       data.is_trunk || false,
       data.label || null,
+      tenantId,
+      userId,
+      userId,
     ]
   );
-  return findById(rows[0].id);
+  return findById(rows[0].id, tenantId);
 }
 
-async function update(id, data) {
-  const current = await findById(id);
+async function update(id, data, tenantId, userId) {
+  const current = await findById(id, tenantId);
   if (!current) return null;
 
   const fields = [];
@@ -65,12 +68,17 @@ async function update(id, data) {
       params.push(data[key]);
     }
   }
+  
+  fields.push(`updated_by = $${idx++}`);
+  params.push(userId);
+  fields.push('updated_at = NOW()');
+  
   if (!fields.length) return current;
 
-  fields.push('updated_at = NOW()');
   params.push(id);
-  await pool.query(`UPDATE switch_ports SET ${fields.join(', ')} WHERE id = $${idx}`, params);
-  return findById(id);
+  params.push(tenantId);
+  await pool.query(`UPDATE switch_ports SET ${fields.join(', ')} WHERE id = $${idx++} AND tenant_id = $${idx}`, params);
+  return findById(id, tenantId);
 }
 
 async function addHistory(portId, action, oldValue, newValue) {

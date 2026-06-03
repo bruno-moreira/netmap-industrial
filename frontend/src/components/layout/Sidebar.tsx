@@ -6,20 +6,24 @@ import {
   Layers,
   Settings,
   LogOut,
+  Users,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/useAuthStore';
 
-const links = [
-  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/switches', label: 'Switches', icon: Network },
-  { to: '/devices', label: 'Equipamentos', icon: Monitor },
-  { to: '/vlans', label: 'VLANs', icon: Layers },
-  { to: '/settings', label: 'Configurações', icon: Settings },
+const allLinks = [
+  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['root', 'admin', 'tecnico', 'visualizador'] },
+  { to: '/switches', label: 'Switches', icon: Network, roles: ['root', 'admin', 'tecnico', 'visualizador'] },
+  { to: '/devices', label: 'Equipamentos', icon: Monitor, roles: ['root', 'admin', 'tecnico', 'visualizador'] },
+  { to: '/vlans', label: 'VLANs', icon: Layers, roles: ['root', 'admin', 'tecnico', 'visualizador'] },
+  { to: '/users', label: 'Usuários', icon: Users, roles: ['root'] },
+  { to: '/settings', label: 'Configurações', icon: Settings, roles: ['root', 'admin'] },
 ];
 
 export function Sidebar() {
   const logout = useAuthStore((s) => s.logout);
   const user = useAuthStore((s) => s.user);
+
+  const links = allLinks.filter(link => user?.role && link.roles.includes(user.role));
 
   return (
     <aside className="flex w-64 flex-col border-r border-slate-800 bg-slate-900">

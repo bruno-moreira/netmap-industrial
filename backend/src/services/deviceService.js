@@ -3,17 +3,17 @@ const deviceTypeModel = require('../model/deviceTypeModel');
 const { HttpError } = require('../utils/HttpError');
 const { isValidMac, normalizeMac } = require('../utils/networkValidators');
 
-async function list(filters) {
-  return deviceModel.findAll(filters);
+async function list(filters, tenantId) {
+  return deviceModel.findAll(filters, tenantId);
 }
 
-async function getById(id) {
-  const device = await deviceModel.findById(id);
+async function getById(id, tenantId) {
+  const device = await deviceModel.findById(id, tenantId);
   if (!device) throw new HttpError(404, 'Equipamento não encontrado');
   return device;
 }
 
-async function create(payload) {
+async function create(payload, tenantId, userId) {
   const type = await deviceTypeModel.findById(payload.device_type_id);
   if (!type) throw new HttpError(400, 'Tipo de equipamento inválido');
 
@@ -25,15 +25,15 @@ async function create(payload) {
   if (data.mac_address) data.mac_address = normalizeMac(data.mac_address);
 
   try {
-    return await deviceModel.create(data);
+    return await deviceModel.create(data, tenantId, userId);
   } catch (err) {
     if (err.code === '23505') throw new HttpError(409, 'IP ou identificador já cadastrado');
     throw err;
   }
 }
 
-async function update(id, payload) {
-  await getById(id);
+async function update(id, payload, tenantId, userId) {
+  await getById(id, tenantId);
 
   if (payload.device_type_id) {
     const type = await deviceTypeModel.findById(payload.device_type_id);
@@ -48,15 +48,15 @@ async function update(id, payload) {
   if (data.mac_address) data.mac_address = normalizeMac(data.mac_address);
 
   try {
-    return await deviceModel.update(id, data);
+    return await deviceModel.update(id, data, tenantId, userId);
   } catch (err) {
     if (err.code === '23505') throw new HttpError(409, 'IP ou identificador já cadastrado');
     throw err;
   }
 }
 
-async function remove(id) {
-  const ok = await deviceModel.remove(id);
+async function remove(id, tenantId) {
+  const ok = await deviceModel.remove(id, tenantId);
   if (!ok) throw new HttpError(404, 'Equipamento não encontrado');
 }
 

@@ -18,14 +18,21 @@
     "lint": "eslint .",
     "format": "prettier --write ."
   },
-  "keywords": ["network", "switch", "vlan", "industrial"],
+  "keywords": [
+    "network",
+    "switch",
+    "vlan",
+    "industrial"
+  ],
   "license": "MIT",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "express-rate-limit": "^7.5.0",
     "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.3",
     "pg": "^8.13.1",
     "pino": "^9.6.0",
     "swagger-jsdoc": "^6.2.8",

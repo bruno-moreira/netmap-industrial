@@ -4,8 +4,11 @@ const { asyncHandler } = require('../middlewares/asyncHandler');
 const { validateBody } = require('../middlewares/validateInput');
 const { writeRateLimit } = require('../middlewares/rateLimit');
 const { createSwitchSchema, updateSwitchSchema } = require('../schemas');
+const { authenticateToken } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
+
+router.use(authenticateToken);
 
 router.get('/', asyncHandler(switchController.list));
 router.get('/:id(\\d+)', asyncHandler(switchController.getById));

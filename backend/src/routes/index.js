@@ -1,4 +1,7 @@
 const express = require('express');
+const authRoutes = require('./authRoutes');
+const userRoutes = require('./userRoutes');
+const roleRoutes = require('./roleRoutes');
 const deviceRoutes = require('./deviceRoutes');
 const switchRoutes = require('./switchRoutes');
 const portRoutes = require('./portRoutes');
@@ -9,6 +12,12 @@ const deviceTypeRoutes = require('./deviceTypeRoutes');
 
 const router = express.Router();
 
+// Auth routes (public)
+router.use('/auth', authRoutes);
+
+// Protected routes below
+router.use('/users', userRoutes);
+router.use('/roles', roleRoutes);
 router.use('/dashboard', dashboardRoutes);
 router.use('/switches', switchRoutes);
 router.use('/ports', portRoutes);

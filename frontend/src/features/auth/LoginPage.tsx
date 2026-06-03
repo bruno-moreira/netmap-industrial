@@ -1,66 +1,92 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Network } from 'lucide-react';
+import { useMutation } from '@tanstack/react-query';
+import { authApi } from '@/services/api';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 export function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const login = useAuthStore((s) => s.login);
   const navigate = useNavigate();
+  const setUser = useAuthStore((s) => s.setUser);
+  const setTokens = useAuthStore((s) => s.setTokens);
 
-  function handleSubmit(e: React.FormEvent) {
+  const loginMutation = useMutation({
+    mutationFn: authApi.login,
+    onSuccess: (data) => {
+      setUser(data.user);
+      setTokens(data.accessToken, data.refreshToken);
+      navigate('/dashboard');
+    },
+    onError: (err: any) => {
+      setError(err.response?.data?.message || 'Falha no login');
+    }
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const ok = login(email, password);
-    if (ok) navigate('/dashboard');
-    else setError('Informe e-mail e senha');
-  }
+    setError('');
+    loginMutation.mutate({ email, password });
+  };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4">
-      <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-8 shadow-xl">
-        <div className="mb-8 flex flex-col items-center text-center">
-          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-cyan-600">
-            <Network className="h-8 w-8 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-white">NetMap Industrial</h1>
-          <p className="mt-1 text-sm text-slate-400">Mapeamento de rede industrial</p>
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl p-8">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">NetMap</h1>
+          <p className="text-slate-400">Faça login para continuar</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <label className="block text-sm text-slate-400">
-            E-mail
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {error && (
+            <div className="bg-red-950/50 border border-red-800 text-red-300 rounded-lg p-3 text-sm">
+              {error}
+            </div>
+          )}
+
+          <div>
+            <label htmlFor="email" className="block text-sm text-slate-400 mb-2">
+              Email
+            </label>
             <input
               type="email"
+              id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-2.5 text-white focus:border-cyan-500 focus:outline-none"
-              placeholder="ti@empresa.com"
-              autoComplete="email"
+              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-white focus:border-cyan-500 focus:outline-none"
+              placeholder="seu@email.com"
+              required
             />
-          </label>
-          <label className="block text-sm text-slate-400">
-            Senha
+          </div>
+
+          <div>
+            <label htmlFor="password" className="block text-sm text-slate-400 mb-2">
+              Senha
+            </label>
             <input
               type="password"
+              id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-2.5 text-white focus:border-cyan-500 focus:outline-none"
-              autoComplete="current-password"
+              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-white focus:border-cyan-500 focus:outline-none"
+              placeholder="••••••••"
+              required
             />
-          </label>
-          {error && <p className="text-sm text-red-400">{error}</p>}
+          </div>
+
           <button
             type="submit"
-            className="w-full rounded-lg bg-cyan-600 py-2.5 font-medium text-white hover:bg-cyan-500"
+            disabled={loginMutation.isPending}
+            className="w-full rounded-lg bg-cyan-600 px-4 py-3 font-semibold text-white hover:bg-cyan-500 transition-colors disabled:opacity-50"
           >
-            Entrar
+            {loginMutation.isPending ? 'Entrando...' : 'Entrar'}
           </button>
+
+          <div className="mt-6 text-center text-xs text-slate-500">
+            <p>Demo: admin@empresa-exemplo.com / admin123</p>
+          </div>
         </form>
-        <p className="mt-6 text-center text-xs text-slate-600">
-          MVP: use qualquer e-mail/senha. E-mail com &quot;admin&quot; = perfil administrador.
-        </p>
       </div>
     </div>
   );

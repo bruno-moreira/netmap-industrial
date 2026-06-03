@@ -5,8 +5,8 @@ const vlanModel = require('../model/vlanModel');
 const { HttpError } = require('../utils/HttpError');
 const { getPortDisplayColor, isValidMac, normalizeMac } = require('../utils/networkValidators');
 
-async function getById(id) {
-  const port = await portModel.findById(id);
+async function getById(id, tenantId) {
+  const port = await portModel.findById(id, tenantId);
   if (!port) throw new HttpError(404, 'Porta não encontrada');
   return {
     ...port,
@@ -15,17 +15,17 @@ async function getById(id) {
   };
 }
 
-async function update(id, payload) {
-  const current = await portModel.findById(id);
+async function update(id, payload, tenantId, userId) {
+  const current = await portModel.findById(id, tenantId);
   if (!current) throw new HttpError(404, 'Porta não encontrada');
 
   if (payload.vlan_id) {
-    const vlan = await vlanModel.findById(payload.vlan_id);
+    const vlan = await vlanModel.findById(payload.vlan_id, tenantId);
     if (!vlan) throw new HttpError(400, 'VLAN inválida');
   }
 
   if (payload.connected_device_id) {
-    const device = await deviceModel.findById(payload.connected_device_id);
+    const device = await deviceModel.findById(payload.connected_device_id, tenantId);
     if (!device) throw new HttpError(400, 'Equipamento conectado inválido');
     if (!payload.mac_address) payload.mac_address = device.mac_address;
     if (!payload.status) payload.status = 'connected';
@@ -34,7 +34,7 @@ async function update(id, payload) {
   }
 
   if (payload.connected_switch_id) {
-    const sw = await switchModel.findById(payload.connected_switch_id);
+    const sw = await switchModel.findById(payload.connected_switch_id, tenantId);
     if (!sw) throw new HttpError(400, 'Switch conectado inválido');
     // Não pode conectar a si mesmo
     if (sw.id === current.switch_id) {
@@ -50,7 +50,7 @@ async function update(id, payload) {
   }
   if (payload.mac_address) payload.mac_address = normalizeMac(payload.mac_address);
 
-  const updated = await portModel.update(id, payload);
+  const updated = await portModel.update(id, payload, tenantId, userId);
   await portModel.addHistory(id, 'update', current, updated);
 
   return {
@@ -60,10 +60,10 @@ async function update(id, payload) {
   };
 }
 
-async function create(payload) {
+async function create(payload, tenantId, userId) {
   try {
-    const port = await portModel.create(payload);
-    return getById(port.id);
+    const port = await portModel.create(payload, tenantId, userId);
+    return getById(port.id, tenantId);
   } catch (err) {
     if (err.code === '23505') throw new HttpError(409, 'Número de porta já existe neste switch');
     throw err;

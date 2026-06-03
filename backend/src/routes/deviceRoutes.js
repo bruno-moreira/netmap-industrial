@@ -8,8 +8,11 @@ const {
   updateDeviceSchema,
   searchQuerySchema,
 } = require('../schemas');
+const { authenticateToken } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
+
+router.use(authenticateToken);
 
 router.get('/', validateQuery(searchQuerySchema), asyncHandler(deviceController.list));
 router.get('/:id(\\d+)', asyncHandler(deviceController.getById));

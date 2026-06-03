@@ -1,24 +1,24 @@
 const { pool } = require('../../config/db');
 
-async function findAll() {
-  const { rows } = await pool.query('SELECT * FROM vlans ORDER BY vlan_number ASC');
+async function findAll(tenantId) {
+  const { rows } = await pool.query('SELECT * FROM vlans WHERE tenant_id = $1 ORDER BY vlan_number ASC', [tenantId]);
   return rows;
 }
 
-async function findById(id) {
-  const { rows } = await pool.query('SELECT * FROM vlans WHERE id = $1', [id]);
+async function findById(id, tenantId) {
+  const { rows } = await pool.query('SELECT * FROM vlans WHERE id = $1 AND tenant_id = $2', [id, tenantId]);
   return rows[0] || null;
 }
 
-async function create(data) {
+async function create(data, tenantId, userId) {
   const { rows } = await pool.query(
-    `INSERT INTO vlans (vlan_number, name, color, description) VALUES ($1, $2, $3, $4) RETURNING *`,
-    [data.vlan_number, data.name, data.color || '#3b82f6', data.description || null]
+    `INSERT INTO vlans (vlan_number, name, color, description, tenant_id, created_by, updated_by) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+    [data.vlan_number, data.name, data.color || '#3b82f6', data.description || null, tenantId, userId, userId]
   );
   return rows[0];
 }
 
-async function update(id, data) {
+async function update(id, data, tenantId, userId) {
   const fields = [];
   const values = [];
   let paramIndex = 1;
@@ -40,19 +40,24 @@ async function update(id, data) {
     values.push(data.description);
   }
 
+  fields.push(`updated_by = $${paramIndex++}`);
+  values.push(userId);
+  fields.push('updated_at = NOW()');
+
   if (fields.length === 0) return null;
 
   values.push(id);
+  values.push(tenantId);
   const { rows } = await pool.query(
-    `UPDATE vlans SET ${fields.join(', ')}, updated_at = NOW() WHERE id = $${paramIndex} RETURNING *`,
+    `UPDATE vlans SET ${fields.join(', ')} WHERE id = $${paramIndex++} AND tenant_id = $${paramIndex} RETURNING *`,
     values
   );
 
   return rows[0] || null;
 }
 
-async function remove(id) {
-  const { rowCount } = await pool.query('DELETE FROM vlans WHERE id = $1', [id]);
+async function remove(id, tenantId) {
+  const { rowCount } = await pool.query('DELETE FROM vlans WHERE id = $1 AND tenant_id = $2', [id, tenantId]);
   return rowCount > 0;
 }
 

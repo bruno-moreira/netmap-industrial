@@ -6,10 +6,10 @@ const DEVICE_SELECT = `
   JOIN device_types dt ON dt.id = d.device_type_id
 `;
 
-async function findAll(filters = {}) {
-  const conditions = [];
-  const params = [];
-  let idx = 1;
+async function findAll(filters = {}, tenantId) {
+  const conditions = [`d.tenant_id = $1`];
+  const params = [tenantId];
+  let idx = 2;
 
   if (filters.type) {
     conditions.push(`dt.slug = $${idx++}`);
@@ -35,15 +35,15 @@ async function findAll(filters = {}) {
   return rows;
 }
 
-async function findById(id) {
-  const { rows } = await pool.query(`${DEVICE_SELECT} WHERE d.id = $1`, [id]);
+async function findById(id, tenantId) {
+  const { rows } = await pool.query(`${DEVICE_SELECT} WHERE d.id = $1 AND d.tenant_id = $2`, [id, tenantId]);
   return rows[0] || null;
 }
 
-async function create(data) {
+async function create(data, tenantId, userId) {
   const { rows } = await pool.query(
-    `INSERT INTO devices (device_type_id, name, ip_address, mac_address, location, status, metadata)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)
+    `INSERT INTO devices (device_type_id, name, ip_address, mac_address, location, status, metadata, tenant_id, created_by)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
      RETURNING *`,
     [
       data.device_type_id,
@@ -53,12 +53,14 @@ async function create(data) {
       data.location || null,
       data.status || 'unknown',
       JSON.stringify(data.metadata || {}),
+      tenantId,
+      userId,
     ]
   );
-  return findById(rows[0].id);
+  return findById(rows[0].id, tenantId);
 }
 
-async function update(id, data) {
+async function update(id, data, tenantId, userId) {
   const fields = [];
   const params = [];
   let idx = 1;
@@ -79,18 +81,21 @@ async function update(id, data) {
       params.push(key === 'metadata' ? JSON.stringify(data[key]) : data[key]);
     }
   }
-
-  if (!fields.length) return findById(id);
-
+  
+  fields.push(`updated_by = $${idx++}`);
+  params.push(userId);
   fields.push(`updated_at = NOW()`);
   params.push(id);
+  params.push(tenantId);
 
-  await pool.query(`UPDATE devices SET ${fields.join(', ')} WHERE id = $${idx}`, params);
-  return findById(id);
+  if (!fields.length) return findById(id, tenantId);
+
+  await pool.query(`UPDATE devices SET ${fields.join(', ')} WHERE id = $${idx - 1} AND tenant_id = $${idx}`, params);
+  return findById(id, tenantId);
 }
 
-async function remove(id) {
-  const { rowCount } = await pool.query('DELETE FROM devices WHERE id = $1', [id]);
+async function remove(id, tenantId) {
+  const { rowCount } = await pool.query('DELETE FROM devices WHERE id = $1 AND tenant_id = $2', [id, tenantId]);
   return rowCount > 0;
 }
 
