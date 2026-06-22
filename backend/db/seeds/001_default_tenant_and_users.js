@@ -1,9 +1,6 @@
-const bcrypt = require('bcrypt');
+import bcrypt from 'bcrypt';
 
-/**
- * @param { import("knex").Knex } knex
- */
-exports.seed = async function seed(knex) {
+export async function seed(knex) {
   // Deletes ALL existing entries in dependent order
   await knex('users').del();
   await knex('roles').del();
@@ -53,4 +50,4 @@ exports.seed = async function seed(knex) {
       is_active: true
     }
   ]);
-};
+}

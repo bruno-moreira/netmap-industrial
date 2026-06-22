@@ -1,7 +1,4 @@
-/**
- * @param { import("knex").Knex } knex
- */
-exports.seed = async function seed(knex) {
+export async function seed(knex) {
   await knex('port_history').del();
   await knex('device_links').del();
   await knex('switch_ports').del();
@@ -96,13 +93,14 @@ exports.seed = async function seed(knex) {
       switch_id: sw.id,
       port_number: i,
       status: 'free',
+      port_type: 'access',
       tenant_id: tenant.id,
     });
   }
   ports[11] = {
     ...ports[11],
     status: 'connected',
-    vlan_id: vlanMap[30],
+    untagged_vlan_id: vlanMap[30],
     mac_address: printer.mac_address,
     connected_device_id: printer.id,
     label: 'Impressora RH',
@@ -110,12 +108,15 @@ exports.seed = async function seed(knex) {
   ports[7] = {
     ...ports[7],
     status: 'connected',
-    vlan_id: vlanMap[20],
+    untagged_vlan_id: vlanMap[20],
     mac_address: camera.mac_address,
     connected_device_id: camera.id,
     label: 'Câmera Portaria',
   };
-  ports[23] = { ...ports[23], status: 'free', is_trunk: true, vlan_id: vlanMap[99], label: 'Uplink' };
+  ports[23] = { ...ports[23], status: 'free', port_type: 'trunk', untagged_vlan_id: vlanMap[99], label: 'Uplink' };
 
-  await knex('switch_ports').insert(ports);
-};
+  await knex('switch_ports').insert(ports.map(p => ({
+    ...p,
+    tagged_vlan_ids: JSON.stringify(p.tagged_vlan_ids || [])
+  })));
+}
