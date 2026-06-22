@@ -19,8 +19,10 @@ export function SwitchPortButton({ port, onClick }: SwitchPortButtonProps) {
       style={inlineStyle}
     >
       <span className="font-bold">{String(port.port_number).padStart(2, '0')}</span>
-      {port.vlan_number != null && (
-        <span className="mt-0.5 text-[10px] opacity-90">V{port.vlan_number}</span>
+      {port.port_type === 'trunk' && <span className="mt-0.5 text-[10px] opacity-90 font-bold">TRUNK</span>}
+      {port.port_type === 'hybrid' && <span className="mt-0.5 text-[10px] opacity-90 font-bold">HYBRID</span>}
+      {port.port_type === 'access' && port.untagged_vlan_number != null && (
+        <span className="mt-0.5 text-[10px] opacity-90">V{port.untagged_vlan_number}</span>
       )}
     </button>
   );

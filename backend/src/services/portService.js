@@ -19,8 +19,8 @@ async function update(id, payload, tenantId, userId) {
   const current = await portModel.findById(id, tenantId);
   if (!current) throw new HttpError(404, 'Porta não encontrada');
 
-  if (payload.vlan_id) {
-    const vlan = await vlanModel.findById(payload.vlan_id, tenantId);
+  if (payload.untagged_vlan_id) {
+    const vlan = await vlanModel.findById(payload.untagged_vlan_id, tenantId);
     if (!vlan) throw new HttpError(400, 'VLAN inválida');
   }
 

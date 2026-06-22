@@ -26,13 +26,15 @@ const PORT_COLORS = {
   error: '#ef4444',
   disabled: '#6b7280',
   trunk: '#171717',
+  hybrid: '#4338ca',
 };
 
 function getPortDisplayColor(port) {
-  if (port.is_trunk) return PORT_COLORS.trunk;
+  if (port.port_type === 'trunk') return PORT_COLORS.trunk;
+  if (port.port_type === 'hybrid') return PORT_COLORS.hybrid;
   if (port.status === 'error') return PORT_COLORS.error;
   if (port.status === 'free') return PORT_COLORS.free;
-  if (port.vlan_color) return port.vlan_color;
+  if (port.untagged_vlan_color) return port.untagged_vlan_color;
   if (port.status === 'connected') return PORT_COLORS.connected;
   return PORT_COLORS.free;
 }

@@ -2,7 +2,7 @@ import { pool } from '../../config/db.js';
 
 const PORT_SELECT = `
   SELECT sp.*,
-    v.vlan_number, v.name AS vlan_name, v.color AS vlan_color,
+    v.vlan_number AS untagged_vlan_number, v.name AS untagged_vlan_name, v.color AS untagged_vlan_color,
     d.name AS device_name, d.ip_address AS device_ip, d.mac_address AS device_mac,
     d.location AS device_location, d.status AS device_status,
     dt.slug AS device_type_slug, dt.name AS device_type_name, dt.color AS device_type_color,
@@ -11,7 +11,7 @@ const PORT_SELECT = `
     cs.location AS connected_switch_location
   FROM switch_ports sp
   JOIN switches s ON s.id = sp.switch_id
-  LEFT JOIN vlans v ON v.id = sp.vlan_id
+  LEFT JOIN vlans v ON v.id = sp.untagged_vlan_id
   LEFT JOIN devices d ON d.id = sp.connected_device_id
   LEFT JOIN device_types dt ON dt.id = d.device_type_id
   LEFT JOIN switches cs ON cs.id = sp.connected_switch_id
@@ -32,18 +32,19 @@ async function findBySwitchId(switchId, tenantId) {
 
 async function create(data, tenantId, userId) {
   const { rows } = await pool.query(
-    `INSERT INTO switch_ports (switch_id, port_number, status, vlan_id, mac_address, connected_device_id, connected_switch_id, is_trunk, label, tenant_id, created_by, updated_by)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+    `INSERT INTO switch_ports (switch_id, port_number, status, port_type, untagged_vlan_id, tagged_vlan_ids, mac_address, connected_device_id, connected_switch_id, label, tenant_id, created_by, updated_by)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
      RETURNING id`,
     [
       data.switch_id,
       data.port_number,
       data.status || 'free',
-      data.vlan_id || null,
+      data.port_type || 'access',
+      data.untagged_vlan_id || null,
+      JSON.stringify(data.tagged_vlan_ids || []),
       data.mac_address || null,
       data.connected_device_id || null,
       data.connected_switch_id || null,
-      data.is_trunk || false,
       data.label || null,
       tenantId,
       userId,
@@ -60,12 +61,12 @@ async function update(id, data, tenantId, userId) {
   const fields = [];
   const params = [];
   let idx = 1;
-  const allowed = ['status', 'vlan_id', 'mac_address', 'connected_device_id', 'connected_switch_id', 'is_trunk', 'label'];
+  const allowed = ['status', 'port_type', 'untagged_vlan_id', 'tagged_vlan_ids', 'mac_address', 'connected_device_id', 'connected_switch_id', 'label'];
 
   for (const key of allowed) {
     if (data[key] !== undefined) {
       fields.push(`${key} = $${idx++}`);
-      params.push(data[key]);
+      params.push(key === 'tagged_vlan_ids' ? JSON.stringify(data[key]) : data[key]);
     }
   }
   
@@ -77,6 +78,7 @@ async function update(id, data, tenantId, userId) {
 
   params.push(id);
   params.push(tenantId);
+  // We use idx and idx+1 since they correspond to the array length + 1
   await pool.query(`UPDATE switch_ports SET ${fields.join(', ')} WHERE id = $${idx++} AND tenant_id = $${idx}`, params);
   return findById(id, tenantId);
 }

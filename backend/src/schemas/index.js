@@ -39,10 +39,11 @@ const updateVlanSchema = createVlanSchema.partial();
 
 const updatePortSchema = z.object({
   status: portStatus.optional(),
-  vlan_id: z.coerce.number().int().positive().optional().nullable(),
+  port_type: z.enum(['access', 'hybrid', 'trunk']).optional(),
+  untagged_vlan_id: z.coerce.number().int().positive().optional().nullable(),
+  tagged_vlan_ids: z.array(z.coerce.number().int().positive()).optional(),
   mac_address: z.string().max(17).optional().nullable(),
   connected_device_id: z.coerce.number().int().positive().optional().nullable(),
-  is_trunk: z.boolean().optional(),
   label: z.string().max(100).optional().nullable(),
 });
 
@@ -50,9 +51,10 @@ const createPortSchema = z.object({
   switch_id: z.coerce.number().int().positive(),
   port_number: z.coerce.number().int().min(1).max(96),
   status: portStatus.optional(),
-  vlan_id: z.coerce.number().int().positive().optional().nullable(),
+  port_type: z.enum(['access', 'hybrid', 'trunk']).optional(),
+  untagged_vlan_id: z.coerce.number().int().positive().optional().nullable(),
+  tagged_vlan_ids: z.array(z.coerce.number().int().positive()).optional(),
   connected_device_id: z.coerce.number().int().positive().optional().nullable(),
-  is_trunk: z.boolean().optional(),
   label: z.string().max(100).optional().nullable(),
 });
 

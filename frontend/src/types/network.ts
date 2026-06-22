@@ -64,10 +64,12 @@ export interface SwitchPort {
   switch_id: number;
   port_number: number;
   status: PortStatus;
-  vlan_id?: number;
-  vlan_number?: number;
-  vlan_name?: string;
-  vlan_color?: string;
+  port_type?: 'access' | 'hybrid' | 'trunk';
+  untagged_vlan_id?: number;
+  untagged_vlan_number?: number;
+  untagged_vlan_name?: string;
+  untagged_vlan_color?: string;
+  tagged_vlan_ids?: number[];
   mac_address?: string;
   connected_device_id?: number;
   device_name?: string;
@@ -81,7 +83,6 @@ export interface SwitchPort {
   connected_switch_name?: string;
   connected_switch_ip?: string;
   connected_switch_location?: string;
-  is_trunk?: boolean;
   label?: string;
   display_color?: string;
   switch_name?: string;
@@ -98,11 +99,13 @@ export interface PortHistoryEntry {
 
 export interface UpdatePortPayload {
   status?: PortStatus;
-  vlan_id?: number | null;
+  port_type?: 'access' | 'hybrid' | 'trunk';
+  untagged_vlan_id?: number | null;
+  tagged_vlan_ids?: number[];
+  mac_address?: string | null;
   connected_device_id?: number | null;
   connected_switch_id?: number | null;
   label?: string | null;
-  is_trunk?: boolean;
 }
 
 export interface CreateDevicePayload {

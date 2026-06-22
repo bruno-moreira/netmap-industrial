@@ -21,9 +21,10 @@ describe('networkValidators', () => {
   });
 
   it('cor de exibição da porta', () => {
-    assert.equal(getPortDisplayColor({ is_trunk: true }), '#171717');
+    assert.equal(getPortDisplayColor({ port_type: 'trunk' }), '#171717');
+    assert.equal(getPortDisplayColor({ port_type: 'hybrid' }), '#4338ca');
     assert.equal(getPortDisplayColor({ status: 'error' }), '#ef4444');
-    assert.equal(getPortDisplayColor({ status: 'connected', vlan_color: '#3b82f6' }), '#3b82f6');
+    assert.equal(getPortDisplayColor({ status: 'connected', untagged_vlan_color: '#3b82f6' }), '#3b82f6');
     assert.equal(getPortDisplayColor({ status: 'free' }), '#9ca3af');
   });
 });

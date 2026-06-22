@@ -105,13 +105,14 @@ export function PortDetailsDrawer() {
           <div className="space-y-6">
             <section className="grid grid-cols-2 gap-3 text-sm">
               <Info label="Status" value={PORT_STATUS_LABELS[port.status] || port.status} />
-              <Info label="VLAN" value={port.vlan_name ? `${port.vlan_number} — ${port.vlan_name}` : '—'} />
+              <Info label="Untagged VLAN" value={port.untagged_vlan_name ? `${port.untagged_vlan_number} — ${port.untagged_vlan_name}` : '—'} />
+              <Info label="Tagged VLANs" value={port.tagged_vlan_ids?.length ? port.tagged_vlan_ids.join(', ') : '—'} />
               <Info label="Equipamento" value={port.device_name || port.connected_switch_name || port.label || '—'} />
-              <Info label="Tipo" value={port.device_type_name || (port.connected_switch_id ? 'Switch' : '—')} />
+              <Info label="Tipo de Equip." value={port.device_type_name || (port.connected_switch_id ? 'Switch' : '—')} />
               <Info label="IP" value={port.device_ip || port.connected_switch_ip || '—'} mono />
               <Info label="MAC" value={port.device_mac || port.mac_address || '—'} mono />
               <Info label="Localização" value={port.device_location || port.connected_switch_location || '—'} />
-              <Info label="Trunk" value={port.is_trunk ? 'Sim' : 'Não'} />
+              <Info label="Modo da Porta" value={port.port_type?.toUpperCase() || 'ACCESS'} />
             </section>
 
             {port.history && port.history.length > 0 && (
@@ -149,13 +150,28 @@ export function PortDetailsDrawer() {
               </label>
 
               <label className="block text-xs text-slate-500">
-                VLAN
+                Modo da Porta
                 <select
                   className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
-                  value={port.vlan_id ?? ''}
+                  value={port.port_type || 'access'}
+                  onChange={(e) =>
+                    updateMutation.mutate({ port_type: e.target.value as any })
+                  }
+                >
+                  <option value="access">Access</option>
+                  <option value="hybrid">Hybrid</option>
+                  <option value="trunk">Trunk</option>
+                </select>
+              </label>
+
+              <label className="block text-xs text-slate-500">
+                Untagged VLAN (Nativa)
+                <select
+                  className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
+                  value={port.untagged_vlan_id ?? ''}
                   onChange={(e) =>
                     updateMutation.mutate({
-                      vlan_id: e.target.value ? Number(e.target.value) : null,
+                      untagged_vlan_id: e.target.value ? Number(e.target.value) : null,
                     })
                   }
                 >
@@ -167,6 +183,27 @@ export function PortDetailsDrawer() {
                   ))}
                 </select>
               </label>
+
+              {(port.port_type === 'hybrid' || port.port_type === 'trunk') && (
+                <label className="block text-xs text-slate-500">
+                  Tagged VLANs (Segure Ctrl/Cmd para selecionar várias)
+                  <select
+                    multiple
+                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm h-32"
+                    value={(port.tagged_vlan_ids || []).map(String)}
+                    onChange={(e) => {
+                      const selected = Array.from(e.target.selectedOptions, (option) => Number(option.value));
+                      updateMutation.mutate({ tagged_vlan_ids: selected });
+                    }}
+                  >
+                    {vlans.map((v) => (
+                      <option key={v.id} value={v.id}>
+                        {v.vlan_number} — {v.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
 
               <label className="block text-xs text-slate-500">
                 Equipamento

@@ -15,14 +15,14 @@ describe('portService', () => {
     switch_id: 1,
     port_number: 12,
     status: 'free',
-    is_trunk: false,
+    port_type: 'access',
   };
 
   it('getById inclui display_color e histórico', async () => {
     mock.method(portModel, 'findById', async () => ({
       ...basePort,
       status: 'connected',
-      vlan_color: '#3b82f6',
+      untagged_vlan_color: '#3b82f6',
     }));
     mock.method(portModel, 'getHistory', async () => [{ id: 1, action: 'update' }]);
 
@@ -60,7 +60,7 @@ describe('portService', () => {
     mock.method(vlanModel, 'findById', async () => null);
 
     await assert.rejects(
-      () => portService.update(1, { vlan_id: 999 }),
+      () => portService.update(1, { untagged_vlan_id: 999 }),
       (err) => err.statusCode === 400
     );
   });
