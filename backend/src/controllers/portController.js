@@ -1,4 +1,4 @@
-const portService = require('../services/portService');
+import portService from '../services/portService.js';
 
 async function getById(req, res) {
   const data = await portService.getById(Number(req.params.id), req.tenantId);
@@ -15,4 +15,5 @@ async function create(req, res) {
   res.status(201).json(data);
 }
 
-module.exports = { getById, update, create };
+export { getById, update, create };
+export default { getById, update, create };

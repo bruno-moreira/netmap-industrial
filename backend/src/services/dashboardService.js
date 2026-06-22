@@ -1,7 +1,8 @@
-const dashboardModel = require('../model/dashboardModel');
+import dashboardModel from '../model/dashboardModel.js';
 
 async function getDashboard(tenantId) {
   return dashboardModel.getStats(tenantId);
 }
 
-module.exports = { getDashboard };
+export { getDashboard };
+export default { getDashboard };

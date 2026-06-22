@@ -1,11 +1,11 @@
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const swaggerUi = require('swagger-ui-express');
-const { env } = require('./config/env');
-const { swaggerSpec } = require('./config/swagger');
-const apiRoutes = require('./routes');
-const { errorHandler } = require('./middlewares/errorHandler');
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import swaggerUi from 'swagger-ui-express';
+import { env } from './config/env.js';
+import { swaggerSpec } from './config/swagger.js';
+import apiRoutes from './routes/index.js';
+import { errorHandler } from './middlewares/errorHandler.js';
 
 function createApp() {
   const app = express();
@@ -31,4 +31,4 @@ function createApp() {
   return app;
 }
 
-module.exports = { createApp };
+export { createApp };

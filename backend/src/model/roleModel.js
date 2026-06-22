@@ -1,4 +1,4 @@
-const { pool } = require('../../config/db');
+import { pool } from '../../config/db.js';
 
 const ROLE_SELECT = `
   SELECT 
@@ -36,4 +36,5 @@ async function create(data) {
   return rows[0];
 }
 
-module.exports = { findAll, findById, findBySlug, create };
+export { findAll, findById, findBySlug, create };
+export default { findAll, findById, findBySlug, create };

@@ -1,4 +1,4 @@
-const deviceService = require('../services/deviceService');
+import deviceService from '../services/deviceService.js';
 
 async function list(req, res) {
   const data = await deviceService.list(req.validatedQuery || req.query, req.tenantId);
@@ -25,4 +25,5 @@ async function remove(req, res) {
   res.status(204).send();
 }
 
-module.exports = { list, getById, create, update, remove };
+export { list, getById, create, update, remove };
+export default { list, getById, create, update, remove };

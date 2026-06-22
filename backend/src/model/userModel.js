@@ -1,4 +1,4 @@
-const { pool } = require('../../config/db');
+import { pool } from '../../config/db.js';
 
 const USER_SELECT = `
   SELECT 
@@ -85,4 +85,5 @@ async function remove(id) {
   return rowCount > 0;
 }
 
-module.exports = { findAll, findById, findByEmail, create, update, remove };
+export { findAll, findById, findByEmail, create, update, remove };
+export default { findAll, findById, findByEmail, create, update, remove };

@@ -16,7 +16,7 @@ npm install
 npm run dev
 ```
 
-API em http://localhost:3000 (proxy Vite em `/api`).
+API em http://localhost:3001 (proxy Vite em `/api`).
 
 ## Rotas
 

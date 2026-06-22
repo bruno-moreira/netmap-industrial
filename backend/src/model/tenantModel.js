@@ -1,4 +1,4 @@
-const { pool } = require('../../config/db');
+import { pool } from '../../config/db.js';
 
 const TENANT_SELECT = `
   SELECT 
@@ -67,4 +67,5 @@ async function remove(id) {
   return rowCount > 0;
 }
 
-module.exports = { findAll, findById, findBySlug, create, update, remove };
+export { findAll, findById, findBySlug, create, update, remove };
+export default { findAll, findById, findBySlug, create, update, remove };

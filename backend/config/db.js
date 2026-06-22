@@ -1,5 +1,5 @@
-const { Pool } = require('pg');
-const { env } = require('../src/config/env');
+import { Pool } from 'pg';
+import { env } from '../src/config/env.js';
 
 const pool = new Pool({
   host: env.DB_HOST,
@@ -13,4 +13,4 @@ pool.on('error', (err) => {
   console.error('Erro inesperado no pool PostgreSQL', err);
 });
 
-module.exports = { pool };
+export { pool };

@@ -1,4 +1,4 @@
-const { pool } = require('../../config/db');
+import { pool } from '../../config/db.js';
 
 async function findAll() {
   const { rows } = await pool.query('SELECT * FROM device_types ORDER BY name ASC');
@@ -15,4 +15,5 @@ async function findBySlug(slug) {
   return rows[0] || null;
 }
 
-module.exports = { findAll, findById, findBySlug };
+export { findAll, findById, findBySlug };
+export default { findAll, findById, findBySlug };

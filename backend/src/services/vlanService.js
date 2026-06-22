@@ -1,5 +1,5 @@
-const vlanModel = require('../model/vlanModel');
-const { HttpError } = require('../utils/HttpError');
+import vlanModel from '../model/vlanModel.js';
+import { HttpError } from '../utils/HttpError.js';
 
 async function list(tenantId) {
   return vlanModel.findAll(tenantId);
@@ -38,4 +38,5 @@ async function remove(id, tenantId) {
   if (!deleted) throw new HttpError(404, 'VLAN não encontrada');
 }
 
-module.exports = { list, getById, create, update, remove };
+export { list, getById, create, update, remove };
+export default { list, getById, create, update, remove };

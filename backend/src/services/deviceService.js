@@ -1,7 +1,7 @@
-const deviceModel = require('../model/deviceModel');
-const deviceTypeModel = require('../model/deviceTypeModel');
-const { HttpError } = require('../utils/HttpError');
-const { isValidMac, normalizeMac } = require('../utils/networkValidators');
+import deviceModel from '../model/deviceModel.js';
+import deviceTypeModel from '../model/deviceTypeModel.js';
+import { HttpError } from '../utils/HttpError.js';
+import { isValidMac, normalizeMac } from '../utils/networkValidators.js';
 
 async function list(filters, tenantId) {
   return deviceModel.findAll(filters, tenantId);
@@ -60,4 +60,5 @@ async function remove(id, tenantId) {
   if (!ok) throw new HttpError(404, 'Equipamento não encontrado');
 }
 
-module.exports = { list, getById, create, update, remove };
+export { list, getById, create, update, remove };
+export default { list, getById, create, update, remove };

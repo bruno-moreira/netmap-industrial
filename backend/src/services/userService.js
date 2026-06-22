@@ -1,7 +1,7 @@
-const bcrypt = require('bcrypt');
-const userModel = require('../model/userModel');
-const roleModel = require('../model/roleModel');
-const { HttpError } = require('../utils/HttpError');
+import bcrypt from 'bcrypt';
+import userModel from '../model/userModel.js';
+import roleModel from '../model/roleModel.js';
+import { HttpError } from '../utils/HttpError.js';
 
 async function getAllUsers(tenantId) {
   return userModel.findAll(tenantId);
@@ -45,8 +45,8 @@ async function createUser(data, tenantId) {
   return getUserById(user.id, tenantId);
 }
 
-async function updateUser(id, data, tenantId, currentUserId) {
-  const user = await getUserById(id, tenantId);
+async function updateUser(id, data, tenantId, _currentUserId) {
+  await getUserById(id, tenantId);
   
   const updateData = {};
   if (data.name) updateData.name = data.name;
@@ -63,7 +63,14 @@ async function deleteUser(id, tenantId) {
   return userModel.remove(id);
 }
 
-module.exports = {
+export {
+  getAllUsers,
+  getUserById,
+  createUser,
+  updateUser,
+  deleteUser
+};
+export default {
   getAllUsers,
   getUserById,
   createUser,

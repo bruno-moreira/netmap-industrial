@@ -1,5 +1,5 @@
-const authService = require('../services/authService');
-const { asyncHandler } = require('../middlewares/asyncHandler');
+import authService from '../services/authService.js';
+import { asyncHandler } from '../middlewares/asyncHandler.js';
 
 const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
@@ -13,4 +13,5 @@ const register = asyncHandler(async (req, res) => {
   res.status(201).json(result);
 });
 
-module.exports = { login, register };
+export { login, register };
+export default { login, register };

@@ -1,7 +1,7 @@
-const { createApp } = require('./src/app');
-const { env } = require('./src/config/env');
-const { logger } = require('./src/config/logger');
-const { pool } = require('./config/db');
+import { createApp } from './src/app.js';
+import { env } from './src/config/env.js';
+import { logger } from './src/config/logger.js';
+import { pool } from './config/db.js';
 
 const app = createApp();
 const server = app.listen(env.PORT, async () => {

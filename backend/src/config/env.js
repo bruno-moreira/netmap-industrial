@@ -1,8 +1,11 @@
-const path = require('path');
-const fs = require('fs');
-const { config } = require('dotenv');
+import path from 'path';
+import fs from 'fs';
+import { config } from 'dotenv';
 
 // Sempre carrega .env da pasta backend/, independente do diretório de execução
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const backendRoot = path.resolve(__dirname, '../..');
 const envPath = path.join(backendRoot, '.env');
 const loaded = config({ path: envPath });
@@ -15,10 +18,10 @@ if (!loaded.parsed && !process.env.DB_HOST) {
   throw new Error(`Arquivo .env não encontrado ou vazio.\n${hint}`);
 }
 
-const { z } = require('zod');
+import { z } from 'zod';
 
 const envSchema = z.object({
-  PORT: z.coerce.number().default(3000),
+  PORT: z.coerce.number().default(3001),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   DB_HOST: z.string().min(1),
   DB_PORT: z.coerce.number().default(5432),
@@ -38,4 +41,4 @@ if (!parsed.success) {
 
 const env = parsed.data;
 
-module.exports = { env };
+export { env };

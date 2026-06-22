@@ -1,12 +1,12 @@
-const { describe, it } = require('node:test');
-const assert = require('node:assert/strict');
-const {
+import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';
+import {
   createDeviceSchema,
   createSwitchSchema,
   createVlanSchema,
   updatePortSchema,
   searchQuerySchema,
-} = require('./index');
+} from './index.js';
 
 describe('schemas Zod', () => {
   it('aceita device válido', () => {

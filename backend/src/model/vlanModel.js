@@ -1,4 +1,4 @@
-const { pool } = require('../../config/db');
+import { pool } from '../../config/db.js';
 
 async function findAll(tenantId) {
   const { rows } = await pool.query('SELECT * FROM vlans WHERE tenant_id = $1 ORDER BY vlan_number ASC', [tenantId]);
@@ -61,4 +61,5 @@ async function remove(id, tenantId) {
   return rowCount > 0;
 }
 
-module.exports = { findAll, findById, create, update, remove };
+export { findAll, findById, create, update, remove };
+export default { findAll, findById, create, update, remove };

@@ -67,8 +67,8 @@ npm run dev:web    # frontend
 
 | Serviço | URL |
 |---------|-----|
-| API | http://localhost:3000 |
-| Swagger | http://localhost:3000/docs |
+| API | http://localhost:3001 |
+| Swagger | http://localhost:3001/docs |
 | Frontend | http://localhost:5173 |
 
 ### Docker (tudo junto)

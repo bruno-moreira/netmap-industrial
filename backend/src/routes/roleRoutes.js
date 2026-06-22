@@ -1,7 +1,7 @@
-const express = require('express');
-const { authenticateToken } = require('../middlewares/authMiddleware');
-const roleModel = require('../model/roleModel');
-const { asyncHandler } = require('../middlewares/asyncHandler');
+import express from 'express';
+import { authenticateToken } from '../middlewares/authMiddleware.js';
+import roleModel from '../model/roleModel.js';
+import { asyncHandler } from '../middlewares/asyncHandler.js';
 
 const router = express.Router();
 
@@ -12,4 +12,4 @@ router.get('/', asyncHandler(async (req, res) => {
   res.json(roles);
 }));
 
-module.exports = router;
+export default router;

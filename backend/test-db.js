@@ -1,4 +1,4 @@
-const { pool } = require('./config/db');
+import { pool } from './config/db.js';
 
 async function testDB() {
   console.log('Testando conexão com banco...');

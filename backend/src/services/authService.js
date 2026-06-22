@@ -1,9 +1,9 @@
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const userModel = require('../model/userModel');
-const tenantModel = require('../model/tenantModel');
-const roleModel = require('../model/roleModel');
-const { HttpError } = require('../utils/HttpError');
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import userModel from '../model/userModel.js';
+import tenantModel from '../model/tenantModel.js';
+import roleModel from '../model/roleModel.js';
+import { HttpError } from '../utils/HttpError.js';
 
 async function login(email, password) {
   const user = await userModel.findByEmail(email);
@@ -111,4 +111,5 @@ async function register(data) {
   };
 }
 
-module.exports = { login, register };
+export { login, register };
+export default { login, register };

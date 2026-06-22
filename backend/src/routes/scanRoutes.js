@@ -1,11 +1,11 @@
-const express = require('express');
-const scanController = require('../controllers/scanController');
-const { asyncHandler } = require('../middlewares/asyncHandler');
-const { writeRateLimit } = require('../middlewares/rateLimit');
+import express from 'express';
+import scanController from '../controllers/scanController.js';
+import { asyncHandler } from '../middlewares/asyncHandler.js';
+import { writeRateLimit } from '../middlewares/rateLimit.js';
 
 const router = express.Router();
 
 router.post('/network', writeRateLimit, asyncHandler(scanController.scanNetwork));
 router.post('/switch/:id(\\d+)', writeRateLimit, asyncHandler(scanController.scanSwitch));
 
-module.exports = router;
+export default router;

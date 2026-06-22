@@ -1,4 +1,4 @@
-const switchService = require('../services/switchService');
+import switchService from '../services/switchService.js';
 
 async function list(req, res) {
   const data = await switchService.list(req.tenantId);
@@ -26,4 +26,5 @@ async function remove(req, res) {
   res.status(204).send();
 }
 
-module.exports = { list, getById, create, update, remove };
+export { list, getById, create, update, remove };
+export default { list, getById, create, update, remove };

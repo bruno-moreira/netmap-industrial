@@ -10,7 +10,7 @@ RUN npm ci --omit=dev
 
 COPY . .
 
-EXPOSE 3000
+EXPOSE 3001
 
 # Banco inicializado via db/bd.sql no Postgres; API sobe direto
 CMD ["npm", "start"]

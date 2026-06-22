@@ -1,9 +1,9 @@
-const portModel = require('../model/portModel');
-const deviceModel = require('../model/deviceModel');
-const switchModel = require('../model/switchModel');
-const vlanModel = require('../model/vlanModel');
-const { HttpError } = require('../utils/HttpError');
-const { getPortDisplayColor, isValidMac, normalizeMac } = require('../utils/networkValidators');
+import portModel from '../model/portModel.js';
+import deviceModel from '../model/deviceModel.js';
+import switchModel from '../model/switchModel.js';
+import vlanModel from '../model/vlanModel.js';
+import { HttpError } from '../utils/HttpError.js';
+import { getPortDisplayColor, isValidMac, normalizeMac } from '../utils/networkValidators.js';
 
 async function getById(id, tenantId) {
   const port = await portModel.findById(id, tenantId);
@@ -70,4 +70,5 @@ async function create(payload, tenantId, userId) {
   }
 }
 
-module.exports = { getById, update, create };
+export { getById, update, create };
+export default { getById, update, create };

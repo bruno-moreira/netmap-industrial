@@ -1,14 +1,14 @@
-const express = require('express');
-const authRoutes = require('./authRoutes');
-const userRoutes = require('./userRoutes');
-const roleRoutes = require('./roleRoutes');
-const deviceRoutes = require('./deviceRoutes');
-const switchRoutes = require('./switchRoutes');
-const portRoutes = require('./portRoutes');
-const vlanRoutes = require('./vlanRoutes');
-const dashboardRoutes = require('./dashboardRoutes');
-const scanRoutes = require('./scanRoutes');
-const deviceTypeRoutes = require('./deviceTypeRoutes');
+import express from 'express';
+import authRoutes from './authRoutes.js';
+import userRoutes from './userRoutes.js';
+import roleRoutes from './roleRoutes.js';
+import deviceRoutes from './deviceRoutes.js';
+import switchRoutes from './switchRoutes.js';
+import portRoutes from './portRoutes.js';
+import vlanRoutes from './vlanRoutes.js';
+import dashboardRoutes from './dashboardRoutes.js';
+import scanRoutes from './scanRoutes.js';
+import deviceTypeRoutes from './deviceTypeRoutes.js';
 
 const router = express.Router();
 
@@ -26,4 +26,4 @@ router.use('/devices', deviceRoutes);
 router.use('/device-types', deviceTypeRoutes);
 router.use('/scan', scanRoutes);
 
-module.exports = router;
+export default router;

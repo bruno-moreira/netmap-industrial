@@ -1,11 +1,11 @@
-require('../../test/setupEnv');
-const { describe, it, beforeEach, mock } = require('node:test');
-const assert = require('node:assert/strict');
+import '../../test/setupEnv.js';
+import { describe, it, beforeEach, mock } from 'node:test';
+import assert from 'node:assert/strict';
 
-const deviceModel = require('../model/deviceModel');
-const deviceTypeModel = require('../model/deviceTypeModel');
-const deviceService = require('./deviceService');
-const { HttpError } = require('../utils/HttpError');
+import deviceModel from '../model/deviceModel.js';
+import deviceTypeModel from '../model/deviceTypeModel.js';
+import deviceService from './deviceService.js';
+import { HttpError } from '../utils/HttpError.js';
 
 describe('deviceService', () => {
   beforeEach(() => {

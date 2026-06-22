@@ -1,4 +1,4 @@
-import axios, { type AxiosRequestConfig } from 'axios';
+import axios from 'axios';
 import type {
   CreateDevicePayload,
   CreateVlanPayload,
@@ -94,6 +94,8 @@ export const devicesApi = {
 export const vlansApi = {
   list: () => api.get<Vlan[]>('/vlans').then((r) => r.data),
   create: (data: CreateVlanPayload) => api.post<Vlan>('/vlans', data).then((r) => r.data),
+  update: (id: number, data: Partial<CreateVlanPayload>) => api.put<Vlan>(`/vlans/${id}`, data).then((r) => r.data),
+  remove: (id: number) => api.delete(`/vlans/${id}`),
 };
 
 export interface Role {

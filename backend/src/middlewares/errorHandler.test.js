@@ -1,8 +1,8 @@
-require('../../test/setupEnv');
-const { describe, it } = require('node:test');
-const assert = require('node:assert/strict');
-const { errorHandler } = require('./errorHandler');
-const { HttpError } = require('../utils/HttpError');
+import '../../test/setupEnv.js';
+import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';
+import { errorHandler } from './errorHandler.js';
+import { HttpError } from '../utils/HttpError.js';
 
 function mockRes() {
   const res = { statusCode: 200, body: null };

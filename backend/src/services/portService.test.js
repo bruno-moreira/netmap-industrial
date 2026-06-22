@@ -1,11 +1,11 @@
-require('../../test/setupEnv');
-const { describe, it, beforeEach, mock } = require('node:test');
-const assert = require('node:assert/strict');
+import '../../test/setupEnv.js';
+import { describe, it, beforeEach, mock } from 'node:test';
+import assert from 'node:assert/strict';
 
-const portModel = require('../model/portModel');
-const vlanModel = require('../model/vlanModel');
-const deviceModel = require('../model/deviceModel');
-const portService = require('./portService');
+import portModel from '../model/portModel.js';
+import vlanModel from '../model/vlanModel.js';
+import deviceModel from '../model/deviceModel.js';
+import portService from './portService.js';
 
 describe('portService', () => {
   beforeEach(() => mock.restoreAll());

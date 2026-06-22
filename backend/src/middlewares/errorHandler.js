@@ -1,5 +1,5 @@
-const { HttpError } = require('../utils/HttpError');
-const { logger } = require('../config/logger');
+import { HttpError } from '../utils/HttpError.js';
+import { logger } from '../config/logger.js';
 
 function errorHandler(err, req, res, _next) {
   const status = err.statusCode || 500;
@@ -15,4 +15,4 @@ function errorHandler(err, req, res, _next) {
   });
 }
 
-module.exports = { errorHandler, HttpError };
+export { errorHandler, HttpError };

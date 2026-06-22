@@ -1,4 +1,4 @@
-const { pool } = require('../../config/db');
+import { pool } from '../../config/db.js';
 
 async function getStats(tenantId) {
   const { rows } = await pool.query(`
@@ -15,4 +15,5 @@ async function getStats(tenantId) {
   return rows[0];
 }
 
-module.exports = { getStats };
+export { getStats };
+export default { getStats };

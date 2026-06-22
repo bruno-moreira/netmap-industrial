@@ -10,6 +10,14 @@ exports.seed = async function seed(knex) {
   await knex('vlans').del();
   await knex('device_types').del();
 
+  const tenant = await knex('tenants').where('slug', 'empresa-exemplo').first();
+  const admin = await knex('users').where('email', 'admin@empresa-exemplo.com').first();
+  
+  if (!tenant || !admin) {
+    console.warn('Tenant ou Admin não encontrados, pule o seed 002 ou rode o 001 primeiro.');
+    return;
+  }
+
   const deviceTypes = [
     { slug: 'pc', name: 'PC', icon: 'monitor', color: '#64748b' },
     { slug: 'printer', name: 'Impressora', icon: 'printer', color: '#22c55e' },
@@ -27,11 +35,11 @@ exports.seed = async function seed(knex) {
   await knex('device_types').insert(deviceTypes);
 
   const vlans = [
-    { vlan_number: 10, name: 'Administração', color: '#3b82f6' },
-    { vlan_number: 20, name: 'CFTV', color: '#8b5cf6' },
-    { vlan_number: 30, name: 'Impressoras', color: '#86efac' },
-    { vlan_number: 40, name: 'Catracas', color: '#f97316' },
-    { vlan_number: 99, name: 'Trunk', color: '#171717' },
+    { vlan_number: 10, name: 'Administração', color: '#3b82f6', tenant_id: tenant.id, created_by: admin.id },
+    { vlan_number: 20, name: 'CFTV', color: '#8b5cf6', tenant_id: tenant.id, created_by: admin.id },
+    { vlan_number: 30, name: 'Impressoras', color: '#86efac', tenant_id: tenant.id, created_by: admin.id },
+    { vlan_number: 40, name: 'Catracas', color: '#f97316', tenant_id: tenant.id, created_by: admin.id },
+    { vlan_number: 99, name: 'Trunk', color: '#171717', tenant_id: tenant.id, created_by: admin.id },
   ];
   await knex('vlans').insert(vlans);
 
@@ -44,6 +52,8 @@ exports.seed = async function seed(knex) {
       rack_id: 'RACK-A1',
       location: 'Administrativo',
       port_count: 24,
+      tenant_id: tenant.id,
+      created_by: admin.id,
     })
     .returning('*');
 
@@ -62,6 +72,8 @@ exports.seed = async function seed(knex) {
       mac_address: 'AA:BB:CC:DD:EE:01',
       location: 'Administrativo',
       status: 'online',
+      tenant_id: tenant.id,
+      created_by: admin.id,
     })
     .returning('*');
 
@@ -73,6 +85,8 @@ exports.seed = async function seed(knex) {
       mac_address: 'AA:BB:CC:DD:EE:02',
       location: 'Portaria',
       status: 'online',
+      tenant_id: tenant.id,
+      created_by: admin.id,
     })
     .returning('*');
 
@@ -82,6 +96,7 @@ exports.seed = async function seed(knex) {
       switch_id: sw.id,
       port_number: i,
       status: 'free',
+      tenant_id: tenant.id,
     });
   }
   ports[11] = {

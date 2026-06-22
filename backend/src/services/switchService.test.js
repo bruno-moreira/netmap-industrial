@@ -1,10 +1,10 @@
-require('../../test/setupEnv');
-const { describe, it, beforeEach, mock } = require('node:test');
-const assert = require('node:assert/strict');
+import '../../test/setupEnv.js';
+import { describe, it, beforeEach, mock } from 'node:test';
+import assert from 'node:assert/strict';
 
-const switchModel = require('../model/switchModel');
-const portModel = require('../model/portModel');
-const switchService = require('./switchService');
+import switchModel from '../model/switchModel.js';
+import portModel from '../model/portModel.js';
+import switchService from './switchService.js';
 
 describe('switchService', () => {
   beforeEach(() => mock.restoreAll());
@@ -16,7 +16,7 @@ describe('switchService', () => {
       { id: 2, port_number: 2, status: 'connected', vlan_color: '#22c55e', is_trunk: false },
     ]);
 
-    const sw = await switchService.getById(1, true);
+    const sw = await switchService.getById(1, 1, true);
     assert.equal(sw.ports.length, 2);
     assert.equal(sw.ports[1].display_color, '#22c55e');
   });

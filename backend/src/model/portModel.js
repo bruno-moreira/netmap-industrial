@@ -1,4 +1,4 @@
-const { pool } = require('../../config/db');
+import { pool } from '../../config/db.js';
 
 const PORT_SELECT = `
   SELECT sp.*,
@@ -96,4 +96,5 @@ async function getHistory(portId, limit = 50) {
   return rows;
 }
 
-module.exports = { findById, findBySwitchId, create, update, addHistory, getHistory };
+export { findById, findBySwitchId, create, update, addHistory, getHistory };
+export default { findById, findBySwitchId, create, update, addHistory, getHistory };

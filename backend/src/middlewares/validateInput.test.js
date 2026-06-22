@@ -1,7 +1,7 @@
-const { describe, it } = require('node:test');
-const assert = require('node:assert/strict');
-const { z } = require('zod');
-const { validateBody } = require('./validateInput');
+import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';
+import { z } from 'zod';
+import { validateBody } from './validateInput.js';
 
 describe('validateBody', () => {
   it('rejeita payload inválido', () => {

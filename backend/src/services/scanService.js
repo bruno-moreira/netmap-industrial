@@ -1,4 +1,4 @@
-const { logger } = require('../config/logger');
+import { logger } from '../config/logger.js';
 
 /**
  * Stub para descoberta SNMP/LLDP (Fase 3 do roadmap).
@@ -23,4 +23,5 @@ async function scanSwitch(switchId) {
   };
 }
 
-module.exports = { scanNetwork, scanSwitch };
+export { scanNetwork, scanSwitch };
+export default { scanNetwork, scanSwitch };

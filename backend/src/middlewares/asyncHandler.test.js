@@ -1,6 +1,6 @@
-const { describe, it } = require('node:test');
-const assert = require('node:assert/strict');
-const { asyncHandler } = require('./asyncHandler');
+import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';
+import { asyncHandler } from './asyncHandler.js';
 
 describe('asyncHandler', () => {
   it('propaga erro assíncrono para next', async () => {

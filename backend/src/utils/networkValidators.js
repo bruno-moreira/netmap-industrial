@@ -37,7 +37,7 @@ function getPortDisplayColor(port) {
   return PORT_COLORS.free;
 }
 
-module.exports = {
+export {
   isValidIpv4,
   isValidMac,
   normalizeMac,

@@ -107,7 +107,7 @@ Testes: **`node:test`** (nativo, sem Jest obrigatório).
 Arquivo `.env_example`:
 
 ```env
-PORT=3000
+PORT=3001
 DB_HOST=localhost
 DB_PORT=5432
 DB_USER=postgres
@@ -308,7 +308,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install --omit=dev
 COPY . .
-EXPOSE 3000
+EXPOSE 3001
 CMD ["npm", "start"]
 ```
 

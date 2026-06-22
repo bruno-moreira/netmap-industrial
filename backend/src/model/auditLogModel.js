@@ -1,4 +1,4 @@
-const { pool } = require('../../config/db');
+import { pool } from '../../config/db.js';
 
 async function create(data) {
   const { rows } = await pool.query(
@@ -54,4 +54,5 @@ async function findByTenant(tenantId, options = {}) {
   return rows;
 }
 
-module.exports = { create, findByEntity, findByTenant };
+export { create, findByEntity, findByTenant };
+export default { create, findByEntity, findByTenant };

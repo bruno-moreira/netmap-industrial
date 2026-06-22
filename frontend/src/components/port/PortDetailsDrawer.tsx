@@ -3,7 +3,7 @@ import { X, History } from 'lucide-react';
 import { useNetworkStore } from '@/stores/useNetworkStore';
 import { portsApi, devicesApi, vlansApi, switchesApi } from '@/services/api';
 import { PORT_STATUS_LABELS } from '@/utils/colorRules';
-import type { Device, Switch } from '@/types/network';
+
 
 export function PortDetailsDrawer() {
   const { selectedPort, setSelectedPort } = useNetworkStore();

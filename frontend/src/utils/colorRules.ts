@@ -16,7 +16,7 @@ export function getPortColorClass(port: SwitchPort): string {
 
 /** Cor inline (hex da VLAN ou regra de status) */
 export function getPortInlineStyle(port: SwitchPort): CSSProperties | undefined {
-  if (port.display_color && port.status === 'connected' && !port.is_trunk && port.status !== 'error') {
+  if (port.display_color && port.status === 'connected' && !port.is_trunk) {
     return { backgroundColor: port.display_color };
   }
   if (port.vlan_color && port.status === 'connected' && !port.is_trunk) {

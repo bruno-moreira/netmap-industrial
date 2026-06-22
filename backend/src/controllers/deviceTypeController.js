@@ -1,8 +1,9 @@
-const deviceTypeModel = require('../model/deviceTypeModel');
+import deviceTypeModel from '../model/deviceTypeModel.js';
 
 async function list(req, res) {
   const data = await deviceTypeModel.findAll();
   res.json(data);
 }
 
-module.exports = { list };
+export { list };
+export default { list };

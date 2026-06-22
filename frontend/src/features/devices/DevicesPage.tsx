@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Plus, Trash2, Download } from 'lucide-react';
+import { Plus, Trash2, Download, Pencil } from 'lucide-react';
 import { devicesApi, deviceTypesApi } from '@/services/api';
+import type { Device } from '@/types/network';
 import { Header } from '@/components/layout/Header';
 import { SearchInput } from '@/components/ui/SearchInput';
 import { FilterBar } from '@/components/ui/FilterBar';
@@ -11,6 +12,7 @@ import { DeviceForm, type DeviceFormData } from '@/components/device/DeviceForm'
 export function DevicesPage() {
   const [search, setSearch] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [editingDevice, setEditingDevice] = useState<Device | null>(null);
   const queryClient = useQueryClient();
 
   const { data: devices = [], isLoading } = useQuery({
@@ -29,6 +31,17 @@ export function DevicesPage() {
       queryClient.invalidateQueries({ queryKey: ['devices'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       setShowForm(false);
+      setEditingDevice(null);
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: (data: any) => devicesApi.update(editingDevice!.id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['devices'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      setShowForm(false);
+      setEditingDevice(null);
     },
   });
 
@@ -56,11 +69,16 @@ export function DevicesPage() {
     a.click();
   }
 
-  function handleCreate(data: DeviceFormData) {
-    createMutation.mutate({
+  function onSubmit(data: DeviceFormData) {
+    const payload = {
       ...data,
       ip_address: data.ip_address || undefined,
-    });
+    };
+    if (editingDevice) {
+      updateMutation.mutate(payload);
+    } else {
+      createMutation.mutate(payload);
+    }
   }
 
   return (
@@ -79,7 +97,14 @@ export function DevicesPage() {
             </button>
             <button
               type="button"
-              onClick={() => setShowForm(!showForm)}
+              onClick={() => {
+                if (showForm && !editingDevice) {
+                  setShowForm(false);
+                } else {
+                  setEditingDevice(null);
+                  setShowForm(true);
+                }
+              }}
               className="flex items-center gap-2 rounded-lg bg-cyan-600 px-4 py-2 text-sm font-medium text-white hover:bg-cyan-500"
             >
               <Plus className="h-4 w-4" /> Novo
@@ -99,8 +124,22 @@ export function DevicesPage() {
 
       {showForm && (
         <div className="mb-8 max-w-lg rounded-xl border border-slate-800 bg-slate-900 p-6">
-          <h3 className="mb-4 font-medium text-white">Novo equipamento</h3>
-          <DeviceForm types={types} onSubmit={handleCreate} isLoading={createMutation.isPending} />
+          <h3 className="mb-4 font-medium text-white">
+            {editingDevice ? 'Editar equipamento' : 'Novo equipamento'}
+          </h3>
+          <DeviceForm 
+            types={types} 
+            defaultValues={editingDevice ? {
+              name: editingDevice.name,
+              device_type_id: editingDevice.device_type_id,
+              ip_address: editingDevice.ip_address || '',
+              mac_address: editingDevice.mac_address || '',
+              location: editingDevice.location || '',
+              status: editingDevice.status || 'unknown'
+            } as any : undefined}
+            onSubmit={onSubmit} 
+            isLoading={createMutation.isPending || updateMutation.isPending} 
+          />
         </div>
       )}
 
@@ -141,7 +180,19 @@ export function DevicesPage() {
                   <td className="p-3">
                     <StatusBadge status={d.status} />
                   </td>
-                  <td className="p-3">
+                  <td className="p-3 flex items-center justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingDevice(d);
+                        setShowForm(true);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className="text-slate-500 hover:text-cyan-400"
+                      aria-label="Editar"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
                     <button
                       type="button"
                       onClick={() => deleteMutation.mutate(d.id)}

@@ -1,4 +1,4 @@
-const { HttpError } = require('../utils/HttpError');
+import { HttpError } from '../utils/HttpError.js';
 
 // Define role permissions (simplified)
 const rolePermissions = {
@@ -51,4 +51,4 @@ const hasRole = (...allowedRoles) => {
   };
 };
 
-module.exports = { authorize, hasRole };
+export { authorize, hasRole };

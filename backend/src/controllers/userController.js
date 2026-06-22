@@ -1,5 +1,5 @@
-const { asyncHandler } = require('../middlewares/asyncHandler');
-const userService = require('../services/userService');
+import { asyncHandler } from '../middlewares/asyncHandler.js';
+import userService from '../services/userService.js';
 
 const getAllUsers = asyncHandler(async (req, res) => {
   const users = await userService.getAllUsers(req.tenantId);
@@ -40,7 +40,14 @@ const deleteUser = asyncHandler(async (req, res) => {
   res.sendStatus(204);
 });
 
-module.exports = {
+export {
+  getAllUsers,
+  getUserById,
+  createUser,
+  updateUser,
+  deleteUser
+};
+export default {
   getAllUsers,
   getUserById,
   createUser,

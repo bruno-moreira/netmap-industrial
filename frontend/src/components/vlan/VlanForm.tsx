@@ -12,11 +12,12 @@ const schema = z.object({
 export type VlanFormData = z.infer<typeof schema>;
 
 interface VlanFormProps {
+  defaultValues?: Partial<VlanFormData>;
   onSubmit: (data: VlanFormData) => void;
   isLoading?: boolean;
 }
 
-export function VlanForm({ onSubmit, isLoading }: VlanFormProps) {
+export function VlanForm({ defaultValues, onSubmit, isLoading }: VlanFormProps) {
   const {
     register,
     handleSubmit,
@@ -24,7 +25,7 @@ export function VlanForm({ onSubmit, isLoading }: VlanFormProps) {
     formState: { errors },
   } = useForm<VlanFormData>({
     resolver: zodResolver(schema),
-    defaultValues: { color: '#3b82f6' },
+    defaultValues: { color: '#3b82f6', ...defaultValues },
   });
 
   const color = watch('color');

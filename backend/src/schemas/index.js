@@ -1,4 +1,4 @@
-const { z } = require('zod');
+import { z } from 'zod';
 
 const deviceStatus = z.enum(['online', 'offline', 'unknown', 'maintenance']);
 const portStatus = z.enum(['free', 'connected', 'error', 'disabled']);
@@ -62,7 +62,18 @@ const searchQuerySchema = z.object({
   status: z.string().optional(),
 });
 
-module.exports = {
+export {
+  createDeviceSchema,
+  updateDeviceSchema,
+  createSwitchSchema,
+  updateSwitchSchema,
+  createVlanSchema,
+  updateVlanSchema,
+  updatePortSchema,
+  createPortSchema,
+  searchQuerySchema,
+};
+export default {
   createDeviceSchema,
   updateDeviceSchema,
   createSwitchSchema,

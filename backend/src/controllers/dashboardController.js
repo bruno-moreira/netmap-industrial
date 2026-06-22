@@ -1,8 +1,9 @@
-const dashboardService = require('../services/dashboardService');
+import dashboardService from '../services/dashboardService.js';
 
 async function getStats(req, res) {
   const data = await dashboardService.getDashboard(req.tenantId);
   res.json(data);
 }
 
-module.exports = { getStats };
+export { getStats };
+export default { getStats };

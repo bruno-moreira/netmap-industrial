@@ -1,4 +1,4 @@
-const scanService = require('../services/scanService');
+import scanService from '../services/scanService.js';
 
 async function scanNetwork(req, res) {
   const data = await scanService.scanNetwork();
@@ -10,4 +10,5 @@ async function scanSwitch(req, res) {
   res.json(data);
 }
 
-module.exports = { scanNetwork, scanSwitch };
+export { scanNetwork, scanSwitch };
+export default { scanNetwork, scanSwitch };

@@ -1,4 +1,4 @@
-const rateLimit = require('express-rate-limit');
+import rateLimit from 'express-rate-limit';
 
 const writeRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -8,4 +8,4 @@ const writeRateLimit = rateLimit({
   message: { error: 'Muitas requisições. Tente novamente em alguns minutos.' },
 });
 
-module.exports = { writeRateLimit };
+export { writeRateLimit };

@@ -36,10 +36,10 @@ services:
     container_name: netmap-api
     restart: unless-stopped
     ports:
-      - '${PORT:-3000}:3000'
+      - '${PORT:-3001}:3001'
     environment:
-      NODE_ENV: ${NODE_ENV:-production}
-      PORT: 3000
+      NODE_ENV: development
+      PORT: 3001
       DB_HOST: db
       DB_PORT: 5432
       DB_USER: ${DB_USER:-postgres}
@@ -51,7 +51,7 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:3000/health']
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:3001/health']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -66,7 +66,7 @@ services:
     ports:
       - '5173:5173'
     environment:
-      VITE_API_URL: ${VITE_API_URL:-http://localhost:3000/api}
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:3001/api}
     depends_on:
       api:
         condition: service_healthy

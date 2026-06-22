@@ -1,7 +1,7 @@
-const switchModel = require('../model/switchModel');
-const portModel = require('../model/portModel');
-const { HttpError } = require('../utils/HttpError');
-const { getPortDisplayColor } = require('../utils/networkValidators');
+import switchModel from '../model/switchModel.js';
+import portModel from '../model/portModel.js';
+import { HttpError } from '../utils/HttpError.js';
+import { getPortDisplayColor } from '../utils/networkValidators.js';
 
 async function list(tenantId) {
   return switchModel.findAll(tenantId);
@@ -47,4 +47,5 @@ async function remove(id, tenantId) {
   if (!ok) throw new HttpError(404, 'Switch não encontrado');
 }
 
-module.exports = { list, getById, create, update, remove };
+export { list, getById, create, update, remove };
+export default { list, getById, create, update, remove };

@@ -1,4 +1,4 @@
-const vlanService = require('../services/vlanService');
+import vlanService from '../services/vlanService.js';
 
 async function list(req, res) {
   const data = await vlanService.list(req.tenantId);
@@ -25,4 +25,5 @@ async function remove(req, res) {
   res.status(204).send();
 }
 
-module.exports = { list, getById, create, update, remove };
+export { list, getById, create, update, remove };
+export default { list, getById, create, update, remove };
