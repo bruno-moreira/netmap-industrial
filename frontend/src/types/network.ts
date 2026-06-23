@@ -42,6 +42,9 @@ export interface Device {
   location?: string;
   status: DeviceStatus;
   metadata?: Record<string, unknown>;
+  connected_switch_id?: number;
+  connected_switch_name?: string;
+  connected_port_number?: number;
 }
 
 export interface Switch {

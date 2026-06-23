@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2, Download, Pencil } from 'lucide-react';
 import { devicesApi, deviceTypesApi } from '@/services/api';
@@ -155,6 +156,7 @@ export function DevicesPage() {
                 <th className="p-3">IP</th>
                 <th className="p-3">MAC</th>
                 <th className="p-3">Local</th>
+                <th className="p-3">Conexão</th>
                 <th className="p-3">Status</th>
                 <th className="p-3 w-12" />
               </tr>
@@ -177,6 +179,15 @@ export function DevicesPage() {
                   <td className="p-3 font-mono text-xs">{d.ip_address || '—'}</td>
                   <td className="p-3 font-mono text-xs">{d.mac_address || '—'}</td>
                   <td className="p-3">{d.location || '—'}</td>
+                  <td className="p-3">
+                    {d.connected_switch_id ? (
+                      <Link to={`/switches/${d.connected_switch_id}`} className="text-cyan-400 hover:underline">
+                        {d.connected_switch_name} (Porta {d.connected_port_number})
+                      </Link>
+                    ) : (
+                      <span className="text-slate-500">—</span>
+                    )}
+                  </td>
                   <td className="p-3">
                     <StatusBadge status={d.status} />
                   </td>
@@ -206,7 +217,7 @@ export function DevicesPage() {
               ))}
               {devices.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="p-8 text-center text-slate-500">
+                  <td colSpan={8} className="p-8 text-center text-slate-500">
                     Nenhum equipamento
                   </td>
                 </tr>

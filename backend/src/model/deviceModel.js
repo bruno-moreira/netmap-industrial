@@ -1,7 +1,10 @@
 import { pool } from '../../config/db.js';
 
 const DEVICE_SELECT = `
-  SELECT d.*, dt.slug AS type_slug, dt.name AS type_name, dt.icon AS type_icon, dt.color AS type_color
+  SELECT d.*, dt.slug AS type_slug, dt.name AS type_name, dt.icon AS type_icon, dt.color AS type_color,
+    (SELECT sp.switch_id FROM switch_ports sp WHERE sp.connected_device_id = d.id LIMIT 1) AS connected_switch_id,
+    (SELECT s.name FROM switch_ports sp JOIN switches s ON s.id = sp.switch_id WHERE sp.connected_device_id = d.id LIMIT 1) AS connected_switch_name,
+    (SELECT sp.port_number FROM switch_ports sp WHERE sp.connected_device_id = d.id LIMIT 1) AS connected_port_number
   FROM devices d
   JOIN device_types dt ON dt.id = d.device_type_id
 `;
@@ -95,6 +98,10 @@ async function update(id, data, tenantId, userId) {
 }
 
 async function remove(id, tenantId) {
+  await pool.query(
+    "UPDATE switch_ports SET status = 'free', connected_device_id = NULL WHERE connected_device_id = $1 AND tenant_id = $2",
+    [id, tenantId]
+  );
   const { rowCount } = await pool.query('DELETE FROM devices WHERE id = $1 AND tenant_id = $2', [id, tenantId]);
   return rowCount > 0;
 }
