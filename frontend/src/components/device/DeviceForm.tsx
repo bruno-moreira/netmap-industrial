@@ -3,11 +3,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { DeviceType } from '@/types/network';
 
+const MAC_REGEX = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/;
+
 const schema = z.object({
   name: z.string().min(1, 'Nome obrigatório'),
   device_type_id: z.coerce.number().positive(),
   ip_address: z.string().ip({ version: 'v4' }).optional().or(z.literal('')),
-  mac_address: z.string().max(17).optional(),
+  mac_address: z.string().regex(MAC_REGEX, 'MAC Address inválido').optional().or(z.literal('')),
   location: z.string().optional(),
   status: z.enum(['online', 'offline', 'unknown', 'maintenance']).optional(),
 });
@@ -29,6 +31,10 @@ export function DeviceForm({ types, defaultValues, onSubmit, isLoading, includeS
     formState: { errors },
   } = useForm<DeviceFormData>({
     resolver: zodResolver(schema),
+    values: defaultValues ? {
+      status: 'unknown',
+      ...defaultValues,
+    } as DeviceFormData : undefined,
     defaultValues: {
       status: 'unknown',
       ...defaultValues,

@@ -90,7 +90,7 @@ async function update(id, data, tenantId, userId) {
 
   if (!fields.length) return findById(id, tenantId);
 
-  await pool.query(`UPDATE devices SET ${fields.join(', ')} WHERE id = $${idx - 1} AND tenant_id = $${idx}`, params);
+  await pool.query(`UPDATE devices SET ${fields.join(', ')} WHERE id = $${idx++} AND tenant_id = $${idx}`, params);
   return findById(id, tenantId);
 }
 
