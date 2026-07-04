@@ -12,8 +12,16 @@ import type {
 } from '@/types/network';
 import { useAuthStore } from '@/stores/useAuthStore';
 
+const getBaseUrl = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  // Usa a porta 3001 do mesmo IP/host que o usuário está acessando o frontend
+  return `http://${window.location.hostname}:3001/api`;
+};
+
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL: getBaseUrl(),
 });
 
 api.interceptors.request.use(
@@ -137,4 +145,9 @@ export const usersApi = {
 
 export const deviceTypesApi = {
   list: () => api.get<DeviceType[]>('/device-types').then((r) => r.data),
+};
+
+export const scanApi = {
+  scanSwitch: (id: number, applyToDb: boolean = false) => 
+    api.post(`/scan/switch/${id}`, { applyToDb }).then((r) => r.data),
 };

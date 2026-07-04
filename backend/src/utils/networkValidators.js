@@ -33,8 +33,8 @@ function getPortDisplayColor(port) {
   if (port.port_type === 'trunk') return PORT_COLORS.trunk;
   if (port.port_type === 'hybrid') return PORT_COLORS.hybrid;
   if (port.status === 'error') return PORT_COLORS.error;
-  if (port.status === 'free') return PORT_COLORS.free;
   if (port.untagged_vlan_color) return port.untagged_vlan_color;
+  if (port.status === 'free') return PORT_COLORS.free;
   if (port.status === 'connected') return PORT_COLORS.connected;
   return PORT_COLORS.free;
 }

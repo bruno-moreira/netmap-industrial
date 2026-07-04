@@ -1,16 +1,19 @@
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Search } from 'lucide-react';
 import { switchesApi } from '@/services/api';
 import { useNetworkStore } from '@/stores/useNetworkStore';
 import type { SwitchPort } from '@/types/network';
 import { SwitchPortGrid } from '@/components/switch/SwitchPortGrid';
 import { PortLegend } from '@/components/port/PortLegend';
 import { portsApi } from '@/services/api';
+import { SwitchSnmpScanModal } from './components/SwitchSnmpScanModal';
 
 export function SwitchDetailPage() {
   const { id } = useParams<{ id: string }>();
   const setSelectedPort = useNetworkStore((s) => s.setSelectedPort);
+  const [isScanModalOpen, setIsScanModalOpen] = useState(false);
 
   const { data: sw, isLoading } = useQuery({
     queryKey: ['switch', id],
@@ -41,7 +44,16 @@ export function SwitchDetailPage() {
             {sw.brand} {sw.model} · {sw.ip_address} · {sw.location}
           </p>
         </div>
-        <PortLegend />
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setIsScanModalOpen(true)}
+            className="inline-flex items-center gap-2 rounded-lg bg-slate-800 border border-slate-700 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 hover:text-cyan-400 transition-colors"
+          >
+            <Search className="h-4 w-4" />
+            Descoberta SNMP
+          </button>
+          <PortLegend />
+        </div>
       </div>
 
       <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-6">
@@ -52,6 +64,13 @@ export function SwitchDetailPage() {
           <p className="text-slate-500">Nenhuma porta cadastrada.</p>
         )}
       </div>
+
+      {isScanModalOpen && (
+        <SwitchSnmpScanModal
+          switchId={Number(id)}
+          onClose={() => setIsScanModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

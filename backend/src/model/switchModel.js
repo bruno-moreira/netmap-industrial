@@ -24,8 +24,8 @@ async function findById(id, tenantId) {
 
 async function create(data, tenantId, userId) {
   const { rows } = await pool.query(
-    `INSERT INTO switches (tenant_id, created_by, updated_by, name, ip_address, brand, model, rack_id, location, snmp_community, port_count)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+    `INSERT INTO switches (tenant_id, created_by, updated_by, name, ip_address, brand, model, rack_id, location, snmp_community, port_count, uplink_count)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
      RETURNING *`,
     [
       tenantId,
@@ -39,6 +39,7 @@ async function create(data, tenantId, userId) {
       data.location || null,
       data.snmp_community || null,
       data.port_count || 24,
+      data.uplink_count || 0,
     ]
   );
   return rows[0];
@@ -48,7 +49,7 @@ async function update(id, data, tenantId, userId) {
   const fields = [];
   const params = [];
   let idx = 1;
-  const allowed = ['name', 'ip_address', 'brand', 'model', 'rack_id', 'location', 'snmp_community', 'port_count'];
+  const allowed = ['name', 'ip_address', 'brand', 'model', 'rack_id', 'location', 'snmp_community', 'port_count', 'uplink_count'];
 
   for (const key of allowed) {
     if (data[key] !== undefined) {

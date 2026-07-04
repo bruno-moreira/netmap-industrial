@@ -72,6 +72,7 @@ export async function up(knex) {
     t.string('location', 200);
     t.string('snmp_community', 100);
     t.integer('port_count').defaultTo(24);
+    t.integer('uplink_count').defaultTo(0);
     t.timestamp('created_at').defaultTo(knex.fn.now());
     t.timestamp('updated_at').defaultTo(knex.fn.now());
     addTenantAndUser(t);

@@ -13,6 +13,7 @@ const schema = z.object({
   location: z.string().max(200).optional(),
   snmp_community: z.string().max(100).optional(),
   port_count: z.coerce.number().int().min(4).max(96).optional().default(24),
+  uplink_count: z.coerce.number().int().min(0).max(16).optional().default(0),
 });
 
 export type SwitchFormData = z.infer<typeof schema>;
@@ -40,6 +41,7 @@ export function SwitchForm({ defaultValues, onSubmit, isLoading }: SwitchFormPro
     resolver: zodResolver(schema),
     defaultValues: {
       port_count: 24,
+      uplink_count: 0,
       ...defaultValues,
     },
   });
@@ -50,12 +52,12 @@ export function SwitchForm({ defaultValues, onSubmit, isLoading }: SwitchFormPro
         <input {...register('name')} className={inputClass} placeholder="SW-EXEMPLO-01" />
       </Field>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <Field label="IP Address" error={errors.ip_address?.message}>
           <input {...register('ip_address')} className={inputClass} placeholder="192.168.1.10" />
         </Field>
 
-        <Field label="Port Count" error={errors.port_count?.message}>
+        <Field label="Portas Comuns" error={errors.port_count?.message}>
           <select {...register('port_count', { valueAsNumber: true })} className={inputClass}>
             <option value={4}>4</option>
             <option value={8}>8</option>
@@ -63,6 +65,15 @@ export function SwitchForm({ defaultValues, onSubmit, isLoading }: SwitchFormPro
             <option value={24}>24</option>
             <option value={48}>48</option>
             <option value={96}>96</option>
+          </select>
+        </Field>
+
+        <Field label="Portas Uplink/GBIC" error={errors.uplink_count?.message}>
+          <select {...register('uplink_count', { valueAsNumber: true })} className={inputClass}>
+            <option value={0}>0</option>
+            <option value={2}>2</option>
+            <option value={4}>4</option>
+            <option value={8}>8</option>
           </select>
         </Field>
       </div>

@@ -56,6 +56,7 @@ export interface Switch {
   rack_id?: string;
   location?: string;
   port_count?: number;
+  uplink_count?: number;
   ports_total?: number;
   ports_connected?: number;
   ports_free?: number;
@@ -136,4 +137,5 @@ export interface CreateSwitchPayload {
   location?: string;
   snmp_community?: string;
   port_count?: number;
+  uplink_count?: number;
 }

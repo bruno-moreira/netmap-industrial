@@ -26,13 +26,28 @@ async function getById(id, tenantId, withPorts = false) {
 async function create(payload, tenantId, userId) {
   const sw = await switchModel.create(payload, tenantId, userId);
   const count = payload.port_count || 24;
+  const uplinkCount = payload.uplink_count || 0;
+  
+  // Create standard access ports
   for (let i = 1; i <= count; i++) {
     await portModel.create({
       switch_id: sw.id,
       port_number: i,
       status: 'free',
+      port_type: 'access',
     }, tenantId, userId);
   }
+  
+  // Create uplink/GBIC trunk ports
+  for (let j = 1; j <= uplinkCount; j++) {
+    await portModel.create({
+      switch_id: sw.id,
+      port_number: count + j,
+      status: 'free',
+      port_type: 'trunk',
+    }, tenantId, userId);
+  }
+  
   return getById(sw.id, tenantId, true);
 }
 

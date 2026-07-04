@@ -15,16 +15,28 @@ export function getPortColorClass(port: SwitchPort): string {
   return 'bg-emerald-500 border-emerald-600 text-white';
 }
 
-/** Cor inline (hex da VLAN ou regra de status) */
 export function getPortInlineStyle(port: SwitchPort): CSSProperties | undefined {
   const isSpecial = port.port_type === 'trunk' || port.port_type === 'hybrid';
-  if (port.display_color && port.status === 'connected' && !isSpecial) {
-    return { backgroundColor: port.display_color };
+  if (isSpecial) return undefined;
+
+  const color = port.display_color || port.untagged_vlan_color;
+  if (!color) return undefined;
+
+  if (port.status === 'free') {
+    // Fundo transparente com borda e texto na cor da VLAN
+    return {
+      backgroundColor: `${color}20`, // 12% opacity
+      borderColor: color,
+      color: color,
+    };
   }
-  if (port.untagged_vlan_color && port.status === 'connected' && !isSpecial) {
-    return { backgroundColor: port.untagged_vlan_color };
-  }
-  return undefined;
+
+  // Se estiver conectada, fundo sólido
+  return { 
+    backgroundColor: color,
+    borderColor: color,
+    color: '#fff' 
+  };
 }
 
 export const PORT_STATUS_LABELS: Record<string, string> = {

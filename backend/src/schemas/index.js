@@ -24,6 +24,7 @@ const createSwitchSchema = z.object({
   location: z.string().max(200).optional().nullable(),
   snmp_community: z.string().max(100).optional().nullable(),
   port_count: z.coerce.number().int().min(4).max(96).optional(),
+  uplink_count: z.coerce.number().int().min(0).max(16).optional(),
 });
 
 const updateSwitchSchema = createSwitchSchema.partial();

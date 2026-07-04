@@ -104,6 +104,7 @@ export function SwitchesPage() {
               location: editingSwitch.location || '',
               rack_id: editingSwitch.rack_id || '',
               port_count: editingSwitch.ports_total || editingSwitch.port_count || 24,
+              uplink_count: editingSwitch.uplink_count || 0,
             } as any : undefined}
             onSubmit={handleCreate} 
             isLoading={createMutation.isPending || updateMutation.isPending} 

@@ -6,7 +6,11 @@ async function scanNetwork(req, res) {
 }
 
 async function scanSwitch(req, res) {
-  const data = await scanService.scanSwitch(Number(req.params.id));
+  const switchId = Number(req.params.id);
+  const applyToDb = req.body?.applyToDb === true;
+  const tenantId = req.tenantId || req.user.tenant_id;
+  const userId = req.user.id;
+  const data = await scanService.scanSwitch(switchId, tenantId, applyToDb, userId);
   res.json(data);
 }
 
