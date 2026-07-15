@@ -12,6 +12,12 @@ const schema = z.object({
   rack_id: z.string().max(50).optional(),
   location: z.string().max(200).optional(),
   snmp_community: z.string().max(100).optional(),
+  snmp_version: z.enum(['v1', 'v2c', 'v3']).optional().default('v2c'),
+  snmp_user: z.string().max(100).optional(),
+  snmp_auth_protocol: z.enum(['md5', 'sha', 'sha224', 'sha256', 'sha384', 'sha512']).optional().nullable(),
+  snmp_auth_password: z.string().max(100).optional(),
+  snmp_priv_protocol: z.enum(['des', 'aes', 'aes256b', 'aes256r']).optional().nullable(),
+  snmp_priv_password: z.string().max(100).optional(),
   port_count: z.coerce.number().int().min(4).max(96).optional().default(24),
   uplink_count: z.coerce.number().int().min(0).max(16).optional().default(0),
 });
@@ -37,14 +43,17 @@ function Field({ label, error, children }: { label: string; error?: string; chil
 }
 
 export function SwitchForm({ defaultValues, onSubmit, isLoading }: SwitchFormProps) {
-  const { register, handleSubmit, formState: { errors } } = useForm<SwitchFormData>({
+  const { register, handleSubmit, watch, formState: { errors } } = useForm<SwitchFormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       port_count: 24,
       uplink_count: 0,
+      snmp_version: 'v2c',
       ...defaultValues,
     },
   });
+
+  const snmpVersion = watch('snmp_version');
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -98,9 +107,65 @@ export function SwitchForm({ defaultValues, onSubmit, isLoading }: SwitchFormPro
         </Field>
       </div>
 
-      <Field label="SNMP Community" error={errors.snmp_community?.message}>
-        <input {...register('snmp_community')} className={inputClass} placeholder="public" />
-      </Field>
+      <div className="rounded-lg border border-slate-700 bg-slate-900/50 p-4 space-y-4">
+        <h3 className="text-sm font-medium text-slate-300">Configuração SNMP</h3>
+        
+        <Field label="Versão SNMP" error={errors.snmp_version?.message}>
+          <select {...register('snmp_version')} className={inputClass}>
+            <option value="v1">v1</option>
+            <option value="v2c">v2c</option>
+            <option value="v3">v3</option>
+          </select>
+        </Field>
+
+        {(snmpVersion === 'v1' || snmpVersion === 'v2c') && (
+          <Field label="SNMP Community" error={errors.snmp_community?.message}>
+            <input {...register('snmp_community')} className={inputClass} placeholder="public" />
+          </Field>
+        )}
+
+        {snmpVersion === 'v3' && (
+          <>
+            <Field label="SNMP User" error={errors.snmp_user?.message}>
+              <input {...register('snmp_user')} className={inputClass} placeholder="admin" />
+            </Field>
+
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Auth Protocol" error={errors.snmp_auth_protocol?.message}>
+                <select {...register('snmp_auth_protocol')} className={inputClass}>
+                  <option value="">Nenhum</option>
+                  <option value="md5">MD5</option>
+                  <option value="sha">SHA</option>
+                  <option value="sha224">SHA-224</option>
+                  <option value="sha256">SHA-256</option>
+                  <option value="sha384">SHA-384</option>
+                  <option value="sha512">SHA-512</option>
+                </select>
+              </Field>
+
+              <Field label="Auth Password" error={errors.snmp_auth_password?.message}>
+                <input type="password" {...register('snmp_auth_password')} className={inputClass} />
+              </Field>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Priv Protocol" error={errors.snmp_priv_protocol?.message}>
+                <select {...register('snmp_priv_protocol')} className={inputClass}>
+                  <option value="">Nenhum</option>
+                  <option value="des">DES</option>
+                  <option value="aes">AES</option>
+                  <option value="aes256b">AES-256-B</option>
+                  <option value="aes256r">AES-256-R</option>
+                </select>
+              </Field>
+
+              <Field label="Priv Password" error={errors.snmp_priv_password?.message}>
+                <input type="password" {...register('snmp_priv_password')} className={inputClass} />
+              </Field>
+            </div>
+          </>
+        )}
+      </div>
 
       <button
         type="submit"

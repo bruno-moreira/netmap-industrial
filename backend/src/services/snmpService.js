@@ -47,24 +47,58 @@ function walkSubtree(session, oid) {
  * - 1.3.6.1.2.1.17.7.1.4.5.1.1 (dot1qPvid): Retorna o PVID associado ao SNMPIndex
  * 
  * @param {string} target IP do switch
- * @param {string} community Comunidade SNMP v2c
+ * @param {object} switchConfig Objeto com os dados de configuração SNMP do switch
  * @returns {Promise<Array>} Array de objetos com { portIndex, portName, vlan, vlanName }
  */
-export async function discoverSwitchVlans(target, community) {
+export async function discoverSwitchVlans(target, switchConfig) {
   return new Promise((resolve, reject) => {
     logger.info(`Iniciando descoberta SNMP para ${target}`);
     
-    // Configura a sessão SNMP (v2c, timeout 5s, retries 1)
     const options = {
       port: 161,
       retries: 1,
       timeout: 5000,
       transport: "udp4",
-      trapPort: 162,
-      version: snmp.Version2c
+      trapPort: 162
     };
 
-    const session = snmp.createSession(target, community, options);
+    let session;
+    const version = switchConfig.snmp_version || 'v2c';
+
+    if (version === 'v1' || version === 'v2c') {
+      options.version = version === 'v1' ? snmp.Version1 : snmp.Version2c;
+      const community = switchConfig.snmp_community || 'public';
+      session = snmp.createSession(target, community, options);
+    } else if (version === 'v3') {
+      const { snmp_user, snmp_auth_protocol, snmp_auth_password, snmp_priv_protocol, snmp_priv_password } = switchConfig;
+      
+      let securityLevel = snmp.SecurityLevel.noAuthNoPriv;
+      if (snmp_auth_protocol && snmp_priv_protocol) {
+        securityLevel = snmp.SecurityLevel.authPriv;
+      } else if (snmp_auth_protocol) {
+        securityLevel = snmp.SecurityLevel.authNoPriv;
+      }
+
+      const user = {
+        name: snmp_user || '',
+        level: securityLevel
+      };
+
+      if (snmp_auth_protocol) {
+        user.authProtocol = snmp.AuthProtocols[snmp_auth_protocol];
+        user.authKey = snmp_auth_password || '';
+      }
+
+      if (snmp_priv_protocol) {
+        // net-snmp constants use 'aes', 'des'
+        user.privProtocol = snmp.PrivProtocols[snmp_priv_protocol];
+        user.privKey = snmp_priv_password || '';
+      }
+
+      session = snmp.createV3Session(target, user, options);
+    } else {
+      return reject(new Error('Versão SNMP inválida'));
+    }
 
     const IF_DESCR_OID = '1.3.6.1.2.1.2.2.1.2';
     const DOT1Q_PVID_OID = '1.3.6.1.2.1.17.7.1.4.5.1.1';

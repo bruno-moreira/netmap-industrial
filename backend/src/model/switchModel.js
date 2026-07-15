@@ -24,8 +24,8 @@ async function findById(id, tenantId) {
 
 async function create(data, tenantId, userId) {
   const { rows } = await pool.query(
-    `INSERT INTO switches (tenant_id, created_by, updated_by, name, ip_address, brand, model, rack_id, location, snmp_community, port_count, uplink_count)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+    `INSERT INTO switches (tenant_id, created_by, updated_by, name, ip_address, brand, model, rack_id, location, snmp_community, snmp_version, snmp_user, snmp_auth_protocol, snmp_auth_password, snmp_priv_protocol, snmp_priv_password, port_count, uplink_count)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
      RETURNING *`,
     [
       tenantId,
@@ -38,6 +38,12 @@ async function create(data, tenantId, userId) {
       data.rack_id || null,
       data.location || null,
       data.snmp_community || null,
+      data.snmp_version || 'v2c',
+      data.snmp_user || null,
+      data.snmp_auth_protocol || null,
+      data.snmp_auth_password || null,
+      data.snmp_priv_protocol || null,
+      data.snmp_priv_password || null,
       data.port_count || 24,
       data.uplink_count || 0,
     ]
@@ -49,7 +55,12 @@ async function update(id, data, tenantId, userId) {
   const fields = [];
   const params = [];
   let idx = 1;
-  const allowed = ['name', 'ip_address', 'brand', 'model', 'rack_id', 'location', 'snmp_community', 'port_count', 'uplink_count'];
+  const allowed = [
+    'name', 'ip_address', 'brand', 'model', 'rack_id', 'location',
+    'snmp_community', 'snmp_version', 'snmp_user', 'snmp_auth_protocol',
+    'snmp_auth_password', 'snmp_priv_protocol', 'snmp_priv_password',
+    'port_count', 'uplink_count'
+  ];
 
   for (const key of allowed) {
     if (data[key] !== undefined) {

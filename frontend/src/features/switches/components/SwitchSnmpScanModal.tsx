@@ -58,7 +58,7 @@ export function SwitchSnmpScanModal({ switchId, onClose }: Props) {
           {!scanResult && !loading && !error && (
             <div className="text-center py-8">
               <p className="text-slate-400 mb-6">
-                Este processo conectará no switch via SNMP (v2c) e lerá a configuração atual de Portas e VLANs Nativas (PVID).
+                Este processo conectará no switch via SNMP (utilizando a versão e credenciais configuradas no equipamento) e lerá a configuração atual de Portas e VLANs Nativas (PVID).
               </p>
               <button
                 onClick={() => handleScan(false)}

@@ -27,14 +27,17 @@ async function scanSwitch(switchId, tenantId, applyToDb = false, userId = null) 
   const sw = await switchModel.findById(switchId, tenantId);
   if (!sw) throw new HttpError(404, 'Switch não encontrado');
   
-  if (!sw.ip_address || !sw.snmp_community) {
-    throw new HttpError(400, 'Switch não possui IP ou comunidade SNMP configurados para descoberta');
+  if (!sw.ip_address) {
+    throw new HttpError(400, 'Switch não possui IP configurado para descoberta');
+  }
+  if ((!sw.snmp_version || sw.snmp_version === 'v2c' || sw.snmp_version === 'v1') && !sw.snmp_community) {
+    throw new HttpError(400, 'Switch não possui comunidade SNMP configurada para descoberta');
   }
 
   // 2. Chamar o serviço SNMP
   let discoveredPorts;
   try {
-    discoveredPorts = await discoverSwitchVlans(sw.ip_address, sw.snmp_community);
+    discoveredPorts = await discoverSwitchVlans(sw.ip_address, sw);
   } catch (error) {
     logger.error(`Falha no SNMP para o switch ${sw.ip_address}: ${error.message}`);
     throw new HttpError(500, `Falha de comunicação SNMP: ${error.message}`);

@@ -55,6 +55,13 @@ export interface Switch {
   model?: string;
   rack_id?: string;
   location?: string;
+  snmp_community?: string;
+  snmp_version?: 'v1' | 'v2c' | 'v3';
+  snmp_user?: string;
+  snmp_auth_protocol?: 'md5' | 'sha' | 'sha224' | 'sha256' | 'sha384' | 'sha512' | null;
+  snmp_auth_password?: string;
+  snmp_priv_protocol?: 'des' | 'aes' | 'aes256b' | 'aes256r' | null;
+  snmp_priv_password?: string;
   port_count?: number;
   uplink_count?: number;
   ports_total?: number;
@@ -136,6 +143,12 @@ export interface CreateSwitchPayload {
   rack_id?: string;
   location?: string;
   snmp_community?: string;
+  snmp_version?: 'v1' | 'v2c' | 'v3';
+  snmp_user?: string;
+  snmp_auth_protocol?: 'md5' | 'sha' | 'sha224' | 'sha256' | 'sha384' | 'sha512' | null;
+  snmp_auth_password?: string;
+  snmp_priv_protocol?: 'des' | 'aes' | 'aes256b' | 'aes256r' | null;
+  snmp_priv_password?: string;
   port_count?: number;
   uplink_count?: number;
 }
