@@ -105,6 +105,13 @@ export function SwitchesPage() {
               rack_id: editingSwitch.rack_id || '',
               port_count: editingSwitch.ports_total || editingSwitch.port_count || 24,
               uplink_count: editingSwitch.uplink_count || 0,
+              snmp_version: editingSwitch.snmp_version || 'v2c',
+              snmp_community: editingSwitch.snmp_community || '',
+              snmp_user: editingSwitch.snmp_user || '',
+              snmp_auth_protocol: editingSwitch.snmp_auth_protocol || '',
+              snmp_auth_password: editingSwitch.snmp_auth_password || '',
+              snmp_priv_protocol: editingSwitch.snmp_priv_protocol || '',
+              snmp_priv_password: editingSwitch.snmp_priv_password || '',
             } as any : undefined}
             onSubmit={handleCreate} 
             isLoading={createMutation.isPending || updateMutation.isPending} 
