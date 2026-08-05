@@ -1,5 +1,7 @@
 import deviceModel from '../model/deviceModel.js';
 import deviceTypeModel from '../model/deviceTypeModel.js';
+import snapshotService from './snapshotService.js';
+import nvdService from './nvdService.js';
 import { HttpError } from '../utils/HttpError.js';
 import { isValidMac, normalizeMac } from '../utils/networkValidators.js';
 
@@ -60,5 +62,37 @@ async function remove(id, tenantId) {
   if (!ok) throw new HttpError(404, 'Equipamento não encontrado');
 }
 
-export { list, getById, create, update, remove };
-export default { list, getById, create, update, remove };
+async function fetchSnapshotPreview(payload) {
+  const image_data_uri = await snapshotService.fetchCameraSnapshot(payload);
+  return { image_data_uri };
+}
+
+async function fetchDeviceSnapshot(id, tenantId, userId) {
+  const device = await getById(id, tenantId);
+  const metadata = device.metadata || {};
+  const imageDataUri = await snapshotService.fetchCameraSnapshot({
+    ip_address: device.ip_address,
+    snapshot_url: metadata.snapshot_url,
+    camera_username: metadata.camera_username,
+    camera_password: metadata.camera_password,
+  });
+
+  const updatedMetadata = {
+    ...metadata,
+    image_url: imageDataUri,
+    last_snapshot_at: new Date().toISOString(),
+  };
+
+  return await deviceModel.update(id, { metadata: updatedMetadata }, tenantId, userId);
+}
+
+async function discoverNvdCameras(id, tenantId) {
+  return await nvdService.discoverNvdCameras(id, tenantId);
+}
+
+async function importNvdCameras(id, camerasPayload, tenantId, userId) {
+  return await nvdService.importNvdCameras(id, camerasPayload, tenantId, userId);
+}
+
+export { list, getById, create, update, remove, fetchSnapshotPreview, fetchDeviceSnapshot, discoverNvdCameras, importNvdCameras };
+export default { list, getById, create, update, remove, fetchSnapshotPreview, fetchDeviceSnapshot, discoverNvdCameras, importNvdCameras };

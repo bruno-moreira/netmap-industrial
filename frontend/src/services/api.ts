@@ -16,8 +16,8 @@ const getBaseUrl = () => {
   if (import.meta.env.VITE_API_URL) {
     return import.meta.env.VITE_API_URL;
   }
-  // Usa a porta 3002 do mesmo IP/host que o usuário está acessando o frontend
-  return `http://${window.location.hostname}:3002/api`;
+  // Em desenvolvimento e produção com proxy, usa a rota relativa '/api'
+  return '/api';
 };
 
 export const api = axios.create({
@@ -97,6 +97,14 @@ export const devicesApi = {
   update: (id: number, data: Partial<CreateDevicePayload>) =>
     api.put<Device>(`/devices/${id}`, data).then((r) => r.data),
   remove: (id: number) => api.delete(`/devices/${id}`),
+  fetchSnapshotPreview: (payload: { ip_address?: string; snapshot_url?: string; camera_username?: string; camera_password?: string }) =>
+    api.post<{ image_data_uri: string }>('/devices/snapshot-preview', payload).then((r) => r.data),
+  fetchDeviceSnapshot: (id: number) =>
+    api.post<Device>(`/devices/${id}/snapshot`).then((r) => r.data),
+  discoverNvdCameras: (nvdId: number) =>
+    api.post<{ nvd_id: number; nvd_name: string; nvd_ip: string; cameras: Array<{ channel: number; name: string; ip_address: string; mac_address: string; enable: boolean }> }>(`/devices/${nvdId}/discover-nvd-cameras`).then((r) => r.data),
+  importNvdCameras: (nvdId: number, cameras: Array<{ channel: number; name: string; ip_address?: string; mac_address?: string }>) =>
+    api.post<{ imported_count: number; devices: Device[] }>(`/devices/${nvdId}/import-nvd-cameras`, { cameras }).then((r) => r.data),
 };
 
 export const vlansApi = {

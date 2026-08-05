@@ -2,19 +2,26 @@ import path from 'path';
 import fs from 'fs';
 import { config } from 'dotenv';
 
-// Sempre carrega .env da pasta backend/, independente do diretório de execução
+// Procura .env na raiz do repositório primeiro, ou dentro de backend/
 import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const backendRoot = path.resolve(__dirname, '../..');
-const envPath = path.join(backendRoot, '.env');
-const loaded = config({ path: envPath });
+const projectRoot = path.resolve(backendRoot, '..');
+
+const rootEnvPath = path.join(projectRoot, '.env');
+const backendEnvPath = path.join(backendRoot, '.env');
+
+let loaded = { parsed: null };
+if (fs.existsSync(rootEnvPath)) {
+  loaded = config({ path: rootEnvPath });
+}
+if (fs.existsSync(backendEnvPath)) {
+  config({ path: backendEnvPath, override: true });
+}
 
 if (!loaded.parsed && !process.env.DB_HOST) {
-  const examplePath = path.join(backendRoot, '.env_example');
-  const hint = fs.existsSync(examplePath)
-    ? 'Copie o arquivo de exemplo: cp backend/.env_example backend/.env'
-    : 'Crie backend/.env com DB_HOST, DB_USER, DB_PASSWORD e DB_NAME.';
+  const hint = 'Crie o arquivo .env na raiz do projeto com DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, PORT e DB_PORT.';
   throw new Error(`Arquivo .env não encontrado ou vazio.\n${hint}`);
 }
 

@@ -15,6 +15,13 @@ const createDeviceSchema = z.object({
 
 const updateDeviceSchema = createDeviceSchema.partial();
 
+const snapshotPreviewSchema = z.object({
+  ip_address: z.string().optional().nullable(),
+  snapshot_url: z.string().optional().nullable(),
+  camera_username: z.string().optional().nullable(),
+  camera_password: z.string().optional().nullable(),
+});
+
 const createSwitchSchema = z.object({
   name: z.string().min(1).max(100),
   ip_address: z.string().ip({ version: 'v4' }).optional().nullable(),
@@ -74,6 +81,7 @@ const searchQuerySchema = z.object({
 export {
   createDeviceSchema,
   updateDeviceSchema,
+  snapshotPreviewSchema,
   createSwitchSchema,
   updateSwitchSchema,
   createVlanSchema,
@@ -85,6 +93,7 @@ export {
 export default {
   createDeviceSchema,
   updateDeviceSchema,
+  snapshotPreviewSchema,
   createSwitchSchema,
   updateSwitchSchema,
   createVlanSchema,

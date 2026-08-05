@@ -30,6 +30,15 @@ export interface DeviceType {
   color?: string;
 }
 
+export interface DeviceMetadata {
+  image_url?: string;
+  snapshot_url?: string;
+  camera_username?: string;
+  camera_password?: string;
+  last_snapshot_at?: string;
+  [key: string]: unknown;
+}
+
 export interface Device {
   id: number;
   name: string;
@@ -41,7 +50,7 @@ export interface Device {
   mac_address?: string;
   location?: string;
   status: DeviceStatus;
-  metadata?: Record<string, unknown>;
+  metadata?: DeviceMetadata;
   connected_switch_id?: number;
   connected_switch_name?: string;
   connected_port_number?: number;
@@ -126,6 +135,7 @@ export interface CreateDevicePayload {
   mac_address?: string;
   location?: string;
   status?: DeviceStatus;
+  metadata?: DeviceMetadata;
 }
 
 export interface CreateVlanPayload {

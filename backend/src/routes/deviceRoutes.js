@@ -7,6 +7,7 @@ import {
   createDeviceSchema,
   updateDeviceSchema,
   searchQuerySchema,
+  snapshotPreviewSchema,
 } from '../schemas/index.js';
 import { authenticateToken } from '../middlewares/authMiddleware.js';
 
@@ -73,5 +74,11 @@ router.get('/:id(\\d+)', asyncHandler(deviceController.getById));
 router.post('/', writeRateLimit, validateBody(createDeviceSchema), asyncHandler(deviceController.create));
 router.put('/:id(\\d+)', writeRateLimit, validateBody(updateDeviceSchema), asyncHandler(deviceController.update));
 router.delete('/:id(\\d+)', writeRateLimit, asyncHandler(deviceController.remove));
+
+router.post('/snapshot-preview', validateBody(snapshotPreviewSchema), asyncHandler(deviceController.fetchSnapshotPreview));
+router.post('/:id(\\d+)/snapshot', writeRateLimit, asyncHandler(deviceController.fetchDeviceSnapshot));
+
+router.post('/:id(\\d+)/discover-nvd-cameras', asyncHandler(deviceController.discoverNvdCameras));
+router.post('/:id(\\d+)/import-nvd-cameras', writeRateLimit, asyncHandler(deviceController.importNvdCameras));
 
 export default router;

@@ -3,14 +3,17 @@ import { logger } from '../config/logger.js';
 
 function errorHandler(err, req, res, _next) {
   const status = err.statusCode || 500;
-  const isClient = status >= 400 && status < 500;
+  const isKnownError = err instanceof HttpError || (status >= 400 && status < 500);
 
-  if (!isClient) {
+  if (status >= 500 && !(err instanceof HttpError)) {
     logger.error({ err, path: req.path, method: req.method }, 'Erro interno');
   }
 
+  const message = isKnownError ? err.message : 'Erro interno do servidor';
+
   res.status(status).json({
-    error: isClient ? err.message : 'Erro interno do servidor',
+    error: message,
+    message,
     ...(err.details && { details: err.details }),
   });
 }
