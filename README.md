@@ -67,8 +67,8 @@ cd frontend && npm run dev
 
 | Serviço | URL |
 |---------|-----|
-| API | http://localhost:3001 |
-| Swagger | http://localhost:3001/docs |
+| API | http://localhost:3002 |
+| Swagger | http://localhost:3002/docs |
 | Frontend | http://localhost:5173 |
 
 ### Docker (tudo junto)

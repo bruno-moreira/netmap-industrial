@@ -21,7 +21,7 @@ if (!loaded.parsed && !process.env.DB_HOST) {
 import { z } from 'zod';
 
 const envSchema = z.object({
-  PORT: z.coerce.number().default(3001),
+  PORT: z.coerce.number().default(3002),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   DB_HOST: z.string().min(1),
   DB_PORT: z.coerce.number().default(5432),

@@ -16,8 +16,8 @@ const getBaseUrl = () => {
   if (import.meta.env.VITE_API_URL) {
     return import.meta.env.VITE_API_URL;
   }
-  // Usa a porta 3001 do mesmo IP/host que o usuário está acessando o frontend
-  return `http://${window.location.hostname}:3001/api`;
+  // Usa a porta 3002 do mesmo IP/host que o usuário está acessando o frontend
+  return `http://${window.location.hostname}:3002/api`;
 };
 
 export const api = axios.create({

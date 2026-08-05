@@ -27,7 +27,7 @@ export function DashboardPage() {
   if (error) {
     return (
       <div className="rounded-lg border border-red-800 bg-red-950/30 p-6 text-red-300">
-        Não foi possível conectar à API. Verifique se o backend está em http://localhost:3001
+        Não foi possível conectar à API. Verifique se o backend está em execução.
       </div>
     );
   }

@@ -35,4 +35,4 @@ Prefixo: `/api`
 - `GET /vlans`
 - `POST /scan/network` — stub SNMP
 
-Documentação interativa: http://localhost:3001/docs
+Documentação interativa: http://localhost:3002/docs
