@@ -4,13 +4,16 @@
 
 @layer base {
   body {
-    @apply bg-slate-950 text-slate-100 antialiased;
+    @apply bg-slate-100 text-slate-900 dark:bg-slate-950 dark:text-slate-100 antialiased transition-colors duration-200;
   }
 }
 
 @layer utilities {
   .scrollbar-thin {
     scrollbar-width: thin;
+    scrollbar-color: theme('colors.slate.400') transparent;
+  }
+  .dark .scrollbar-thin {
     scrollbar-color: theme('colors.slate.600') transparent;
   }
 }

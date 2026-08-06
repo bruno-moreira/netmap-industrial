@@ -38,14 +38,14 @@ interface DeviceFormProps {
 }
 
 const inputClass =
-  'w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-200 focus:border-cyan-500 focus:outline-none';
+  'w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-slate-200 focus:border-cyan-500 focus:outline-none transition-colors';
 
 function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="mb-1 block text-xs font-medium text-slate-400">{label}</label>
+      <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">{label}</label>
       {children}
-      {error && <span className="mt-1 text-xs text-red-400">{error}</span>}
+      {error && <span className="mt-1 text-xs text-red-500 dark:text-red-400">{error}</span>}
     </div>
   );
 }
@@ -210,8 +210,8 @@ export function DeviceForm({ types, defaultValues, onSubmit, isLoading, includeS
 
       {/* Seção Especial para Impressoras */}
       {isPrinter && (
-        <div className="rounded-lg border border-slate-800 bg-slate-950 p-4 space-y-4">
-          <div className="flex items-center gap-2 text-emerald-400 font-medium text-sm">
+        <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 space-y-4">
+          <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-medium text-sm">
             <Printer className="h-4 w-4" />
             <span>Especificações da Impressora</span>
           </div>
@@ -261,8 +261,8 @@ export function DeviceForm({ types, defaultValues, onSubmit, isLoading, includeS
 
       {/* Credenciais para NVD / Câmeras */}
       {(isCamera || isNvd) && (
-        <div className="rounded-lg border border-slate-800 bg-slate-950 p-4 space-y-4">
-          <div className="flex items-center gap-2 text-cyan-400 font-medium text-sm">
+        <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 space-y-4">
+          <div className="flex items-center gap-2 text-cyan-600 dark:text-cyan-400 font-medium text-sm">
             <Camera className="h-4 w-4" />
             <span>Configurações & Credenciais ({isNvd ? 'NVD / DVR' : 'Câmera'})</span>
           </div>

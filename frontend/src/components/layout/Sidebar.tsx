@@ -26,13 +26,13 @@ export function Sidebar() {
   const links = allLinks.filter(link => user?.role && link.roles.includes(user.role));
 
   return (
-    <aside className="flex w-64 flex-col border-r border-slate-800 bg-slate-900">
-      <div className="flex items-center gap-3 border-b border-slate-800 px-5 py-5">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-600 font-bold text-white">
+    <aside className="flex w-64 flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 transition-colors">
+      <div className="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 px-5 py-5">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-600 font-bold text-white shadow-sm">
           NM
         </div>
         <div>
-          <h1 className="text-sm font-semibold text-white">NetMap Industrial</h1>
+          <h1 className="text-sm font-semibold text-slate-900 dark:text-white">NetMap Industrial</h1>
           <p className="text-xs text-slate-500">Mapeamento de rede</p>
         </div>
       </div>
@@ -45,8 +45,8 @@ export function Sidebar() {
             className={({ isActive }) =>
               `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
                 isActive
-                  ? 'bg-cyan-600/20 text-cyan-400'
-                  : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                  ? 'bg-cyan-600/10 text-cyan-600 dark:bg-cyan-600/20 dark:text-cyan-400 font-semibold'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
               }`
             }
           >
@@ -56,13 +56,13 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <div className="border-t border-slate-800 p-4">
-        <p className="truncate text-xs text-slate-500">{user?.email}</p>
-        <p className="text-xs capitalize text-slate-600">{user?.role}</p>
+      <div className="border-t border-slate-200 dark:border-slate-800 p-4">
+        <p className="truncate text-xs font-medium text-slate-700 dark:text-slate-400">{user?.email}</p>
+        <p className="text-xs capitalize text-slate-500 dark:text-slate-600">{user?.role}</p>
         <button
           type="button"
           onClick={logout}
-          className="mt-3 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-400 hover:bg-slate-800 hover:text-red-400"
+          className="mt-3 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-red-500 dark:hover:text-red-400 transition"
         >
           <LogOut className="h-4 w-4" />
           Sair

@@ -86,21 +86,21 @@ export function PortDetailsDrawer() {
       onClick={close}
       aria-hidden
     />
-    <aside className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col border-l border-slate-800 bg-slate-900 shadow-2xl">
-      <div className="flex items-center justify-between border-b border-slate-800 px-6 py-4">
+    <aside className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl transition-colors">
+      <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 px-6 py-4">
         <div>
-          <h2 className="text-lg font-semibold text-white">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
             Porta {selectedPort.port_number}
           </h2>
-          <p className="text-sm text-slate-500">{port?.switch_name || selectedPort.switch_name}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">{port?.switch_name || selectedPort.switch_name}</p>
         </div>
-        <button type="button" onClick={close} className="rounded-lg p-2 text-slate-400 hover:bg-slate-800 hover:text-white">
+        <button type="button" onClick={close} className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors">
           <X className="h-5 w-5" />
         </button>
       </div>
 
       <div className="flex-1 overflow-y-auto p-6 scrollbar-thin">
-        {isLoading && <p className="text-slate-500">Carregando...</p>}
+        {isLoading && <p className="text-slate-500 dark:text-slate-400">Carregando...</p>}
         {port && (
           <div className="space-y-6">
             <section className="grid grid-cols-2 gap-3 text-sm">
@@ -117,10 +117,10 @@ export function PortDetailsDrawer() {
 
             {port.history && port.history.length > 0 && (
               <section>
-                <h3 className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-400">
+                <h3 className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-400">
                   <History className="h-4 w-4" /> Histórico
                 </h3>
-                <ul className="max-h-32 space-y-1 overflow-y-auto text-xs text-slate-400">
+                <ul className="max-h-32 space-y-1 overflow-y-auto text-xs text-slate-600 dark:text-slate-400">
                   {port.history.map((h) => (
                     <li key={h.id} className="border-l-2 border-cyan-600 pl-2">
                       {h.action} — {new Date(h.created_at).toLocaleString('pt-BR')}
@@ -130,29 +130,45 @@ export function PortDetailsDrawer() {
               </section>
             )}
 
-            <section className="space-y-4 border-t border-slate-800 pt-4">
-              <h3 className="text-sm font-medium text-white">Associar manualmente</h3>
+            <section className="space-y-4 border-t border-slate-200 dark:border-slate-800 pt-4">
+              <h3 className="text-sm font-medium text-slate-900 dark:text-white">Associar manualmente</h3>
 
-              <label className="block text-xs text-slate-500">
+              <label className="block text-xs text-slate-600 dark:text-slate-400">
                 Status
                 <select
-                  className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
+                  className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-sm text-slate-900 dark:text-white transition-colors"
                   value={port.status}
                   onChange={(e) =>
-                    updateMutation.mutate({ status: e.target.value as typeof port.status })
+                    updateMutation.mutate({ status: e.target.value as any })
                   }
                 >
                   <option value="free">Livre</option>
                   <option value="connected">Conectada</option>
                   <option value="error">Erro</option>
-                  <option value="disabled">Desabilitada</option>
+                  <option value="disabled">Desativada</option>
                 </select>
               </label>
 
-              <label className="block text-xs text-slate-500">
-                Modo da Porta
+              <label className="block text-xs text-slate-600 dark:text-slate-400">
+                Equipamento ou Switch Conectado
                 <select
-                  className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
+                  className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-sm text-slate-900 dark:text-white transition-colors"
+                  value={getCurrentOptionValue()}
+                  onChange={(e) => handleOptionChange(e.target.value)}
+                >
+                  <option value="">Nenhum (Livre)</option>
+                  {combinedOptions.map((opt) => (
+                    <option key={`${opt.type}-${opt.id}`} value={`${opt.type}-${opt.id}`}>
+                      {opt.type === 'switch' ? '🔀 Switch: ' : '💻 '}{opt.name} ({opt.ip})
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="block text-xs text-slate-600 dark:text-slate-400">
+                Tipo da Porta (802.1Q)
+                <select
+                  className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-sm text-slate-900 dark:text-white transition-colors"
                   value={port.port_type || 'access'}
                   onChange={(e) =>
                     updateMutation.mutate({ port_type: e.target.value as any })

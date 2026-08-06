@@ -69,7 +69,7 @@ export function DashboardPage() {
 
           <section className="mt-10">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-white">Switches principais</h2>
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Switches principais</h2>
               <Link
                 to="/switches"
                 className="flex items-center gap-1 text-sm text-cyan-400 hover:underline"

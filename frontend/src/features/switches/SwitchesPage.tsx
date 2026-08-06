@@ -93,8 +93,8 @@ export function SwitchesPage() {
       />
 
       {showForm && (
-        <div className="mb-8 max-w-lg rounded-xl border border-slate-800 bg-slate-900 p-6">
-          <h3 className="mb-4 font-medium text-white">{editingSwitch ? 'Editar Switch' : 'Novo Switch'}</h3>
+        <div className="mb-8 max-w-lg rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm transition-colors">
+          <h3 className="mb-4 font-medium text-slate-900 dark:text-white">{editingSwitch ? 'Editar Switch' : 'Novo Switch'}</h3>
           <SwitchForm 
             defaultValues={editingSwitch ? {
               name: editingSwitch.name,

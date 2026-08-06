@@ -59,7 +59,7 @@ export function VlansPage() {
                 setShowForm(true);
               }
             }}
-            className="flex items-center gap-2 rounded-lg bg-cyan-600 px-4 py-2 text-sm font-medium text-white hover:bg-cyan-500"
+            className="flex items-center gap-2 rounded-lg bg-cyan-600 px-4 py-2 text-sm font-medium text-white hover:bg-cyan-500 transition-colors"
           >
             <Plus className="h-4 w-4" /> Nova VLAN
           </button>
@@ -67,8 +67,8 @@ export function VlansPage() {
       />
 
       {showForm && (
-        <div className="mb-8 max-w-md rounded-xl border border-slate-800 bg-slate-900 p-6">
-          <h3 className="mb-4 font-medium text-white">{editingVlan ? 'Editar VLAN' : 'Nova VLAN'}</h3>
+        <div className="mb-8 max-w-md rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm transition-colors">
+          <h3 className="mb-4 font-medium text-slate-900 dark:text-white">{editingVlan ? 'Editar VLAN' : 'Nova VLAN'}</h3>
           <VlanForm
             defaultValues={editingVlan ? {
               vlan_number: editingVlan.vlan_number,
@@ -89,16 +89,16 @@ export function VlansPage() {
           {vlans.map((v) => (
             <div
               key={v.id}
-              className="flex items-center gap-4 rounded-xl border border-slate-800 bg-slate-900 p-5"
+              className="flex items-center gap-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm transition-colors"
             >
               <span
-                className="h-12 w-12 shrink-0 rounded-lg border border-slate-700"
+                className="h-12 w-12 shrink-0 rounded-lg border border-slate-300 dark:border-slate-700 shadow-xs"
                 style={{ backgroundColor: v.color }}
               />
               <div className="flex-1">
-                <p className="font-mono text-lg font-bold text-white">V{v.vlan_number}</p>
-                <p className="font-medium text-slate-300">{v.name}</p>
-                {v.description && <p className="mt-1 text-xs text-slate-500">{v.description}</p>}
+                <p className="font-mono text-lg font-bold text-slate-900 dark:text-white">V{v.vlan_number}</p>
+                <p className="font-medium text-slate-700 dark:text-slate-300">{v.name}</p>
+                {v.description && <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{v.description}</p>}
               </div>
               <div className="flex flex-col gap-2">
                 <button
@@ -108,14 +108,14 @@ export function VlansPage() {
                     setShowForm(true);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="text-slate-500 hover:text-cyan-400"
+                  className="text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors"
                 >
                   <Pencil className="h-4 w-4" />
                 </button>
                 <button
                   type="button"
                   onClick={() => deleteMutation.mutate(v.id)}
-                  className="text-slate-500 hover:text-red-400"
+                  className="text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>

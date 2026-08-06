@@ -1,8 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-// Unused type import kept for potential future use
-// import type { CreateSwitchPayload } from '@/types/network';
 
 const schema = z.object({
   name: z.string().min(1, 'Nome obrigatório'),
@@ -30,14 +28,14 @@ interface SwitchFormProps {
   isLoading?: boolean;
 }
 
-const inputClass = 'w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white focus:border-cyan-500 focus:outline-none';
+const inputClass = 'w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white focus:border-cyan-500 focus:outline-none transition-colors';
 
 function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
   return (
-    <label className="block text-sm text-slate-400">
+    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
       {label}
       <div className="mt-1">{children}</div>
-      {error && <p className="mt-1 text-xs text-red-400">{error}</p>}
+      {error && <p className="mt-1 text-xs text-red-500 dark:text-red-400">{error}</p>}
     </label>
   );
 }
@@ -107,8 +105,8 @@ export function SwitchForm({ defaultValues, onSubmit, isLoading }: SwitchFormPro
         </Field>
       </div>
 
-      <div className="rounded-lg border border-slate-700 bg-slate-900/50 p-4 space-y-4">
-        <h3 className="text-sm font-medium text-slate-300">Configuração SNMP</h3>
+      <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 p-4 space-y-4">
+        <h3 className="text-sm font-medium text-slate-800 dark:text-slate-300">Configuração SNMP</h3>
         
         <Field label="Versão SNMP" error={errors.snmp_version?.message}>
           <select {...register('snmp_version')} className={inputClass}>
@@ -170,7 +168,7 @@ export function SwitchForm({ defaultValues, onSubmit, isLoading }: SwitchFormPro
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full rounded-lg bg-cyan-600 py-2.5 font-medium text-white hover:bg-cyan-500 disabled:opacity-50"
+        className="w-full rounded-lg bg-cyan-600 py-2.5 font-medium text-white hover:bg-cyan-500 disabled:opacity-50 transition-colors"
       >
         {isLoading ? 'Salvando...' : 'Salvar Switch'}
       </button>

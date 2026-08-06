@@ -74,6 +74,9 @@ export function UsersPage() {
     }
   };
 
+  const inputClass =
+    'mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white focus:border-cyan-500 focus:outline-none transition-colors';
+
   return (
     <div>
       <Header
@@ -90,7 +93,7 @@ export function UsersPage() {
                 setShowForm(true);
               }
             }}
-            className="flex items-center gap-2 rounded-lg bg-cyan-600 px-4 py-2 text-sm font-medium text-white hover:bg-cyan-500"
+            className="flex items-center gap-2 rounded-lg bg-cyan-600 px-4 py-2 text-sm font-medium text-white hover:bg-cyan-500 transition-colors"
           >
             <Plus className="h-4 w-4" /> Novo Usuário
           </button>
@@ -98,31 +101,31 @@ export function UsersPage() {
       />
 
       {showForm && (
-        <div className="mb-8 max-w-lg rounded-xl border border-slate-800 bg-slate-900 p-6">
-          <h3 className="mb-4 font-medium text-white">{editingUser ? 'Editar Usuário' : 'Novo Usuário'}</h3>
+        <div className="mb-8 max-w-lg rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm transition-colors">
+          <h3 className="mb-4 font-medium text-slate-900 dark:text-white">{editingUser ? 'Editar Usuário' : 'Novo Usuário'}</h3>
           <form onSubmit={onSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm text-slate-400">Nome</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Nome</label>
               <input
                 name="name"
                 type="text"
                 required
                 defaultValue={editingUser?.name}
-                className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+                className={inputClass}
               />
             </div>
             <div>
-              <label className="block text-sm text-slate-400">E-mail</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">E-mail</label>
               <input
                 name="email"
                 type="email"
                 required
                 defaultValue={editingUser?.email}
-                className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+                className={inputClass}
               />
             </div>
             <div>
-              <label className="block text-sm text-slate-400">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
                 Senha {editingUser && <span className="text-xs text-slate-500">(deixe em branco para manter)</span>}
               </label>
               <input
@@ -130,16 +133,16 @@ export function UsersPage() {
                 type="password"
                 required={!editingUser}
                 minLength={6}
-                className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+                className={inputClass}
               />
             </div>
             <div>
-              <label className="block text-sm text-slate-400">Role</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Role</label>
               <select
                 name="roleId"
                 required
                 defaultValue={editingUser?.role_id}
-                className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+                className={inputClass}
               >
                 <option value="">Selecione...</option>
                 {roles.map((role) => (
@@ -156,14 +159,14 @@ export function UsersPage() {
                   setShowForm(false);
                   setEditingUser(null);
                 }}
-                className="rounded-lg px-4 py-2 text-sm font-medium text-slate-400 hover:text-white"
+                className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={createMutation.isPending || updateMutation.isPending}
-                className="rounded-lg bg-cyan-600 px-4 py-2 text-sm font-medium text-white hover:bg-cyan-500 disabled:opacity-50"
+                className="rounded-lg bg-cyan-600 px-4 py-2 text-sm font-medium text-white hover:bg-cyan-500 disabled:opacity-50 transition-colors"
               >
                 {createMutation.isPending || updateMutation.isPending ? 'Salvando...' : 'Salvar'}
               </button>
@@ -175,9 +178,9 @@ export function UsersPage() {
       {usersLoading ? (
         <p className="text-slate-500">Carregando...</p>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-slate-800">
+        <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm transition-colors">
           <table className="w-full text-sm">
-            <thead className="bg-slate-900 text-left text-slate-400">
+            <thead className="bg-slate-50 dark:bg-slate-900 text-left text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
               <tr>
                 <th className="p-3">Nome</th>
                 <th className="p-3">E-mail</th>
@@ -186,18 +189,18 @@ export function UsersPage() {
                 <th className="p-3 w-12"></th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
               {users.map((u) => (
-                <tr key={u.id} className="border-t border-slate-800 hover:bg-slate-900/50">
-                  <td className="p-3 font-medium">{u.name}</td>
-                  <td className="p-3">{u.email}</td>
-                  <td className="p-3">{u.role_name}</td>
+                <tr key={u.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                  <td className="p-3 font-medium text-slate-900 dark:text-white">{u.name}</td>
+                  <td className="p-3 text-slate-700 dark:text-slate-300">{u.email}</td>
+                  <td className="p-3 text-slate-700 dark:text-slate-300">{u.role_name}</td>
                   <td className="p-3">
                     <span
-                      className={`rounded px-2 py-0.5 text-xs ${
+                      className={`rounded px-2 py-0.5 text-xs font-medium ${
                         u.is_active
-                          ? 'bg-green-900/30 text-green-400'
-                          : 'bg-red-900/30 text-red-400'
+                          ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
+                          : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
                       }`}
                     >
                       {u.is_active ? 'Ativo' : 'Inativo'}
@@ -212,7 +215,7 @@ export function UsersPage() {
                           setShowForm(true);
                           window.scrollTo({ top: 0, behavior: 'smooth' });
                         }}
-                        className="text-slate-500 hover:text-cyan-400"
+                        className="text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors"
                       >
                         <Pencil className="h-4 w-4" />
                       </button>
@@ -224,7 +227,7 @@ export function UsersPage() {
                               deleteMutation.mutate(u.id);
                             }
                           }}
-                          className="text-slate-500 hover:text-red-400"
+                          className="text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -235,7 +238,7 @@ export function UsersPage() {
               ))}
               {users.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="p-8 text-center text-slate-500">
+                  <td colSpan={5} className="p-8 text-center text-slate-400 dark:text-slate-500">
                     Nenhum usuário encontrado
                   </td>
                 </tr>

@@ -26,28 +26,28 @@ export function SwitchDetailPage() {
     setSelectedPort(detail);
   }
 
-  if (isLoading) return <p className="text-slate-500">Carregando switch...</p>;
-  if (!sw) return <p className="text-red-400">Switch não encontrado</p>;
+  if (isLoading) return <p className="text-slate-500 dark:text-slate-400">Carregando switch...</p>;
+  if (!sw) return <p className="text-red-500 dark:text-red-400">Switch não encontrado</p>;
 
   const columns = sw.port_count && sw.port_count <= 12 ? 4 : 6;
 
   return (
     <div>
-      <Link to="/switches" className="mb-4 inline-flex items-center gap-2 text-sm text-cyan-400 hover:underline">
+      <Link to="/switches" className="mb-4 inline-flex items-center gap-2 text-sm text-cyan-600 dark:text-cyan-400 hover:underline">
         <ArrowLeft className="h-4 w-4" /> Voltar aos switches
       </Link>
 
       <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">{sw.name}</h1>
-          <p className="mt-1 text-slate-400">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{sw.name}</h1>
+          <p className="mt-1 text-slate-600 dark:text-slate-400">
             {sw.brand} {sw.model} · {sw.ip_address} · {sw.location}
           </p>
         </div>
         <div className="flex items-center gap-4">
           <button
             onClick={() => setIsScanModalOpen(true)}
-            className="inline-flex items-center gap-2 rounded-lg bg-slate-800 border border-slate-700 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 hover:text-cyan-400 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 px-4 py-2 text-sm font-medium text-slate-700 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors shadow-sm"
           >
             <Search className="h-4 w-4" />
             Descoberta SNMP
@@ -56,8 +56,8 @@ export function SwitchDetailPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-6">
-        <h2 className="mb-4 text-sm font-medium text-slate-400">Mapa de portas</h2>
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-6 shadow-sm transition-colors">
+        <h2 className="mb-4 text-sm font-medium text-slate-600 dark:text-slate-400">Mapa de portas</h2>
         {sw.ports && sw.ports.length > 0 ? (
           <SwitchPortGrid ports={sw.ports} columns={columns} onPortClick={handlePortClick} />
         ) : (
