@@ -1,43 +1,7 @@
-import crypto from 'node:crypto';
 import deviceModel from '../model/deviceModel.js';
 import deviceTypeModel from '../model/deviceTypeModel.js';
 import { HttpError } from '../utils/HttpError.js';
-
-function md5(str) {
-  return crypto.createHash('md5').update(str).digest('hex');
-}
-
-function parseDigestHeader(header) {
-  const params = {};
-  const re = /(\w+)=(?:"([^"]+)"|([^\s,]+))/g;
-  let match;
-  while ((match = re.exec(header)) !== null) {
-    params[match[1]] = match[2] || match[3];
-  }
-  return params;
-}
-
-function buildDigestHeader({ username, password, method, uri, authParams }) {
-  const { realm, nonce, qop, opaque } = authParams;
-  const cnonce = crypto.randomBytes(8).toString('hex');
-  const nc = '00000001';
-
-  const ha1 = md5(`${username}:${realm}:${password}`);
-  const ha2 = md5(`${method}:${uri}`);
-
-  let response;
-  if (qop === 'auth' || qop === 'auth-int') {
-    response = md5(`${ha1}:${nonce}:${nc}:${cnonce}:${qop}:${ha2}`);
-  } else {
-    response = md5(`${ha1}:${nonce}:${ha2}`);
-  }
-
-  let header = `Digest username="${username}", realm="${realm}", nonce="${nonce}", uri="${uri}", response="${response}"`;
-  if (opaque) header += `, opaque="${opaque}"`;
-  if (qop) header += `, qop=${qop}, nc=${nc}, cnonce="${cnonce}"`;
-
-  return header;
-}
+import { parseDigestHeader, buildDigestHeader } from '../utils/digestAuth.js';
 
 /** Fazer requisição HTTP com Digest Auth para a API do NVD Intelbras */
 async function fetchNvdText(url, username, password) {
@@ -91,62 +55,180 @@ async function fetchNvdText(url, username, password) {
   }
 
   if (!response.ok) {
+    if (response.status === 401 || response.status === 403) {
+      throw new HttpError(
+        502,
+        `Credenciais do NVD recusadas pela Intelbras (HTTP ${response.status}). Edite o NVD e preencha o Usuário e Senha corretos.`
+      );
+    }
     throw new HttpError(
-      response.status === 401 ? 401 : 502,
-      `Falha na comunicação com o NVD (HTTP ${response.status}). Verifique o IP e as credenciais.`
+      502,
+      `Falha na comunicação com o NVD em ${parsedUrl.hostname} (HTTP ${response.status}). Verifique o IP e as portas.`
     );
   }
 
   return await response.text();
 }
 
-/** Parse da resposta da API RemoteDevice da Intelbras */
-function parseRemoteDeviceConfig(text) {
-  const devicesMap = new Map();
-  const lines = text.split('\n');
+/** Parse das tabelas de configuração do NVD Intelbras (Suporte a mapeamento UUID e Canal) */
+function parseRemoteDeviceConfig(rawTexts) {
+  const combinedText = Array.isArray(rawTexts) ? rawTexts.join('\n') : String(rawTexts);
+  const lines = combinedText.split('\n');
+
+  const remoteDevicesByUuid = new Map(); // uuid -> { ip_address, mac_address, name, enable }
+  const remoteChannelsMap = new Map();  // channelIndex -> { deviceUuid, enable }
+  const channelTitlesMap = new Map();   // channelIndex -> name
+  const fallbackDevicesMap = new Map(); // numericIndex -> { ip_address, mac_address, name, enable }
 
   for (const line of lines) {
     const trimmed = line.trim();
     if (!trimmed || !trimmed.includes('=')) continue;
 
     const [key, ...valParts] = trimmed.split('=');
-    const val = valParts.join('=').trim();
+    const val = valParts.join('=').replace(/['"]/g, '').trim();
+    if (!key) continue;
 
-    // Ex: table.RemoteDevice[0].Name ou RemoteDevice[0].IP
-    const match = key.match(/RemoteDevice\[(\d+)\]\.(\w+)/i);
-    if (match) {
-      const index = parseInt(match[1], 10);
-      const prop = match[2];
+    // 1. Matcheia RemoteDevice com UUID: table.RemoteDevice.uuid:System_CONFIG_NETCAMERA_INFO_0.Address=10.107.71.21
+    const uuidMatch = key.match(/RemoteDevice\.(uuid:[^\.]+)\.(.+)/i);
+    if (uuidMatch) {
+      const uuid = uuidMatch[1];
+      const prop = uuidMatch[2].toLowerCase();
 
-      if (!devicesMap.has(index)) {
-        devicesMap.set(index, { channel: index + 1 });
+      if (!remoteDevicesByUuid.has(uuid)) {
+        remoteDevicesByUuid.set(uuid, {});
+      }
+      const dev = remoteDevicesByUuid.get(uuid);
+
+      const ipMatch = val.match(/\b(?:\d{1,3}\.){3}\d{1,3}\b/);
+      if (ipMatch && ipMatch[0] !== '0.0.0.0' && ipMatch[0] !== '127.0.0.1') {
+        dev.ip_address = ipMatch[0];
       }
 
-      const item = devicesMap.get(index);
-      item[prop] = val;
+      const macMatch = val.match(/\b(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}\b/);
+      if (macMatch) {
+        dev.mac_address = macMatch[0].toUpperCase();
+      }
+
+      if (prop.includes('name') && val) {
+        dev.name = val;
+      }
+      if (prop.includes('enable')) {
+        dev.enable = val.toLowerCase() === 'true' || val === '1';
+      }
+      continue;
+    }
+
+    // 2. Matcheia RemoteChannel[index]: table.RemoteChannel[0].Device=uuid:System_CONFIG_NETCAMERA_INFO_0
+    const remoteChanMatch = key.match(/RemoteChannel\[(\d+)\]\.(.+)/i);
+    if (remoteChanMatch) {
+      const idx = parseInt(remoteChanMatch[1], 10);
+      const prop = remoteChanMatch[2].toLowerCase();
+
+      if (!remoteChannelsMap.has(idx)) {
+        remoteChannelsMap.set(idx, {});
+      }
+      const ch = remoteChannelsMap.get(idx);
+      if (prop.includes('device')) {
+        ch.deviceUuid = val;
+      }
+      if (prop.includes('enable')) {
+        ch.enable = val.toLowerCase() === 'true' || val === '1';
+      }
+      continue;
+    }
+
+    // 3. Matcheia ChannelTitle[index]: table.ChannelTitle[0].Name=VIPC Intelbras
+    const titleMatch = key.match(/ChannelTitle\[(\d+)\]\.(.+)/i);
+    if (titleMatch) {
+      const idx = parseInt(titleMatch[1], 10);
+      const prop = titleMatch[2].toLowerCase();
+      if (prop.includes('name') || prop.includes('title')) {
+        channelTitlesMap.set(idx, val);
+      }
+      continue;
+    }
+
+    // 4. Matcheia sintaxe numérica tradicional: RemoteDevice[0].IP=10.107.71.21
+    const numMatch = key.match(/(?:RemoteDevice|DigitalChannel|DevVideoInput|Camera)\[(\d+)\][\.\[](.+)/i);
+    if (numMatch) {
+      const idx = parseInt(numMatch[1], 10);
+      const prop = numMatch[2].toLowerCase();
+
+      if (!fallbackDevicesMap.has(idx)) {
+        fallbackDevicesMap.set(idx, {});
+      }
+      const dev = fallbackDevicesMap.get(idx);
+      const ipMatch = val.match(/\b(?:\d{1,3}\.){3}\d{1,3}\b/);
+      if (ipMatch && ipMatch[0] !== '0.0.0.0' && ipMatch[0] !== '127.0.0.1') {
+        dev.ip_address = ipMatch[0];
+      }
+      const macMatch = val.match(/\b(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}\b/);
+      if (macMatch) {
+        dev.mac_address = macMatch[0].toUpperCase();
+      }
+      if (prop.includes('name') && val) dev.name = val;
+    }
+
+    // 5. Captura universal de MAC em qualquer chave com UUID ou [índice]
+    const macMatch = val.match(/\b(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}\b/);
+    if (macMatch) {
+      const foundMac = macMatch[0].toUpperCase();
+      const lineUuidMatch = key.match(/(uuid:[^\.]+)/i);
+      if (lineUuidMatch) {
+        const uuid = lineUuidMatch[1];
+        if (!remoteDevicesByUuid.has(uuid)) remoteDevicesByUuid.set(uuid, {});
+        remoteDevicesByUuid.get(uuid).mac_address = foundMac;
+      }
+      const lineIdxMatch = key.match(/\[(\d+)\]/);
+      if (lineIdxMatch) {
+        const idx = parseInt(lineIdxMatch[1], 10);
+        if (!fallbackDevicesMap.has(idx)) fallbackDevicesMap.set(idx, {});
+        fallbackDevicesMap.get(idx).mac_address = foundMac;
+      }
     }
   }
 
+  // Construir resultado por canal (0..N -> CH1..N+1)
+  const allIndexes = new Set([
+    ...remoteChannelsMap.keys(),
+    ...channelTitlesMap.keys(),
+    ...fallbackDevicesMap.keys(),
+  ]);
+
+  const sortedIndexes = Array.from(allIndexes).sort((a, b) => a - b);
   const result = [];
-  for (const [index, raw] of devicesMap.entries()) {
-    // Filtra apenas se houver ao menos IP ou Nome configurado
-    if (raw.IP || raw.Name) {
-      result.push({
-        channel: raw.channel || index + 1,
-        name: raw.Name || `Câmera Canal ${index + 1}`,
-        ip_address: raw.IP || '',
-        mac_address: raw.Mac || raw.MAC || '',
-        enable: raw.Enable === 'true' || raw.Enable === '1',
-        protocol: raw.Protocol || 'Intelbras',
-        port: raw.Port ? parseInt(raw.Port, 10) : 37777,
-      });
+
+  for (const idx of sortedIndexes) {
+    const channelNum = idx + 1;
+    const remoteChan = remoteChannelsMap.get(idx);
+    const titleName = channelTitlesMap.get(idx);
+    const fallbackDev = fallbackDevicesMap.get(idx);
+
+    let devByUuid = null;
+    if (remoteChan && remoteChan.deviceUuid) {
+      devByUuid = remoteDevicesByUuid.get(remoteChan.deviceUuid);
     }
+
+    const name = titleName || devByUuid?.name || fallbackDev?.name || `Câmera CH${channelNum}`;
+    const ip = devByUuid?.ip_address || fallbackDev?.ip_address || '';
+    const mac = devByUuid?.mac_address || fallbackDev?.mac_address || '';
+    const enable = remoteChan?.enable !== false && devByUuid?.enable !== false;
+
+    result.push({
+      channel: channelNum,
+      name,
+      ip_address: ip,
+      mac_address: mac,
+      enable,
+      protocol: 'Intelbras',
+      port: 37777,
+    });
   }
 
-  return result.sort((a, b) => a.channel - b.channel);
+  return result;
 }
 
-/** Descobre câmeras cadastradas em um NVD/DVR */
+/** Descobre câmeras cadastradas em um NVD/DVR Intelbras */
 async function discoverNvdCameras(nvdId, tenantId) {
   const nvd = await deviceModel.findById(nvdId, tenantId);
   if (!nvd) throw new HttpError(404, 'NVD/DVR não encontrado');
@@ -161,21 +243,55 @@ async function discoverNvdCameras(nvdId, tenantId) {
   }
 
   const cleanIp = ip.replace(/^https?:\/\//, '').replace(/\/.*$/, '').trim();
-  const configUrl = `http://${cleanIp}/cgi-bin/configManager.cgi?action=getConfig&name=RemoteDevice`;
 
-  try {
-    const rawText = await fetchNvdText(configUrl, username, password);
-    const cameras = parseRemoteDeviceConfig(rawText);
-    return {
-      nvd_id: nvd.id,
-      nvd_name: nvd.name,
-      nvd_ip: cleanIp,
-      cameras,
-    };
-  } catch (err) {
-    if (err instanceof HttpError) throw err;
-    throw new HttpError(502, `Erro ao buscar câmeras do NVD em ${cleanIp}: ${err.message}`);
+  const configTargets = [
+    'RemoteDevice',
+    'RemoteChannel',
+    'ChannelTitle',
+    'Network',
+  ];
+  const rawResults = [];
+  const debugInfo = [];
+
+  for (const target of configTargets) {
+    try {
+      const configUrl = `http://${cleanIp}/cgi-bin/configManager.cgi?action=getConfig&name=${target}`;
+      const text = await fetchNvdText(configUrl, username, password);
+      if (text && text.includes('=')) {
+        debugInfo.push({ target, success: true, snippet: text.slice(0, 300) });
+        rawResults.push(text);
+      } else {
+        debugInfo.push({ target, success: false, reason: 'Sem dados com "="' });
+      }
+    } catch (err) {
+      debugInfo.push({ target, success: false, error: err.message });
+    }
   }
+
+  if (rawResults.length === 0) {
+    throw new HttpError(502, `Não foi possível obter configurações do NVD. Diagnóstico: ${JSON.stringify(debugInfo)}`);
+  }
+
+  const cameras = parseRemoteDeviceConfig(rawResults);
+
+  // Extrai modelo do gravador Intelbras (ex: NVD 7132, NVD 3332, NVD 1432, iNVD 5232)
+  let detectedModel = null;
+  const networkResult = rawResults.find((r) => r.includes('Network.Hostname'));
+  if (networkResult) {
+    const match = networkResult.match(/Network\.Hostname=(.+)/i);
+    if (match && match[1]) {
+      detectedModel = match[1].replace(/['"]/g, '').trim();
+    }
+  }
+
+  return {
+    nvd_id: nvd.id,
+    nvd_name: nvd.name,
+    nvd_ip: cleanIp,
+    detected_model: detectedModel,
+    debug_info: debugInfo,
+    cameras,
+  };
 }
 
 /** Importa em lote as câmeras selecionadas e vincula ao NVD */
@@ -183,7 +299,6 @@ async function importNvdCameras(nvdId, camerasPayload, tenantId, userId) {
   const nvd = await deviceModel.findById(nvdId, tenantId);
   if (!nvd) throw new HttpError(404, 'NVD/DVR não encontrado');
 
-  // Buscar tipo 'camera'
   const cameraType = await deviceTypeModel.findBySlug('camera');
   if (!cameraType) throw new HttpError(500, 'Tipo de equipamento "camera" não configurado');
 
@@ -213,7 +328,6 @@ async function importNvdCameras(nvdId, camerasPayload, tenantId, userId) {
       const newDevice = await deviceModel.create(deviceData, tenantId, userId);
       createdDevices.push(newDevice);
     } catch (err) {
-      // Se der conflito de IP (já existente), apenas ignore ou atualize o metadata existente
       console.warn(`Aviso ao importar câmera CH${cam.channel}: ${err.message}`);
     }
   }

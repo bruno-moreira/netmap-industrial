@@ -91,7 +91,7 @@ export const portsApi = {
 };
 
 export const devicesApi = {
-  list: (params?: { q?: string; type?: string; status?: string }) =>
+  list: (params?: { q?: string; type?: string; status?: string; nvd_id?: number | string }) =>
     api.get<Device[]>('/devices', { params }).then((r) => r.data),
   create: (data: CreateDevicePayload) => api.post<Device>('/devices', data).then((r) => r.data),
   update: (id: number, data: Partial<CreateDevicePayload>) =>
@@ -102,7 +102,14 @@ export const devicesApi = {
   fetchDeviceSnapshot: (id: number) =>
     api.post<Device>(`/devices/${id}/snapshot`).then((r) => r.data),
   discoverNvdCameras: (nvdId: number) =>
-    api.post<{ nvd_id: number; nvd_name: string; nvd_ip: string; cameras: Array<{ channel: number; name: string; ip_address: string; mac_address: string; enable: boolean }> }>(`/devices/${nvdId}/discover-nvd-cameras`).then((r) => r.data),
+    api.post<{
+      nvd_id: number;
+      nvd_name: string;
+      nvd_ip: string;
+      detected_model?: string | null;
+      debug_info?: Array<{ target: string; success: boolean; snippet?: string; error?: string; reason?: string }>;
+      cameras: Array<{ channel: number; name: string; ip_address: string; mac_address: string; enable: boolean }>;
+    }>(`/devices/${nvdId}/discover-nvd-cameras`).then((r) => r.data),
   importNvdCameras: (nvdId: number, cameras: Array<{ channel: number; name: string; ip_address?: string; mac_address?: string }>) =>
     api.post<{ imported_count: number; devices: Device[] }>(`/devices/${nvdId}/import-nvd-cameras`, { cameras }).then((r) => r.data),
 };

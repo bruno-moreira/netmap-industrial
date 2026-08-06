@@ -17,7 +17,8 @@ function createApp() {
       credentials: true,
     })
   );
-  app.use(express.json());
+  app.use(express.json({ limit: '20mb' }));
+  app.use(express.urlencoded({ limit: '20mb', extended: true }));
 
   app.get('/health', (_req, res) => {
     res.json({ status: 'ok', service: 'netmap-industrial-api' });

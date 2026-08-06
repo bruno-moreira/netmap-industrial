@@ -13,11 +13,25 @@ netmap-industrial/
 ```
 
 ## Novidades (Últimas Atualizações)
-- **Backend Migrado para ESM**: Utilizamos ECMAScript Modules (`import/export`) em todo o ecossistema (inclusive em testes e migrations).
-- **Tipos de Portas**: Suporte total a `Access` (Untagged), `Trunk` (Tagged) e `Hybrid` (Untagged PVID + Tagged), possibilitando o cascateamento ou a associação com APs de múltiplas sub-redes.
-- **Auditoria e Multitenancy**: Acesso focado por tenant e histórico completo de modificações de portas via triggers no banco de dados.
+- **Descoberta Automática de Gravadores NVD Intelbras**: Integração via HTTP Digest Auth com suporte total aos modelos **NVD 7132, NVD 3332, NVD 1432 e iNVD 5232**, realizando a importação automatizada de câmeras por canal com resolução de ponteiros UUID e títulos.
+- **Captura de Snapshots ao Vivo**: Visualização e atualização em tempo real de fotos de câmeras IP (ex.: Intelbras VIP 1230 B G2) com suporte a requisições de até 20MB.
+- **Especificações de Impressoras**: Cadastro de impressoras com informações de posse (Própria vs Locada/Outsourced), conexão (IP vs USB local), tecnologias (Laser P&B, Laser Colorida, Térmica e Jato de Tinta) e contratos.
+- **Filtros Dinâmicos Multi-Critério**: Filtragem em tempo real na tela de equipamentos por Tipo, Status (Online/Offline) e NVD pai.
+- **Backend Migrado para ESM**: ECMAScript Modules (`import/export`) em todo o ecossistema backend e testes automatizados (`node --test`).
 
-## Início rápido
+## 🚀 Implantação Automatizada no Servidor (1 Comando)
+
+Para implantar tudo automaticamente em um servidor Linux (Docker + Postgres + Migrações + Frontend + API):
+
+```bash
+./deploy.sh
+```
+
+Consulte o [Roteiro Completo de Implantação](file:///home/bruno/Documentos/netmap-industrial/ROTEIRO_IMPLANTACAO_SERVIDOR.md) para rotinas de backup, restauração e atualizações.
+
+---
+
+## Início rápido (Desenvolvimento)
 
 ### 1. Instalar dependências
 

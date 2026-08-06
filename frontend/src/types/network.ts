@@ -36,6 +36,13 @@ export interface DeviceMetadata {
   camera_username?: string;
   camera_password?: string;
   last_snapshot_at?: string;
+
+  // Propriedades de Impressora
+  printer_ownership?: 'owned' | 'rented';
+  printer_connection?: 'ip' | 'usb';
+  printer_tech?: 'laser_bw' | 'laser_color' | 'thermal' | 'inkjet';
+  printer_provider?: string;
+
   [key: string]: unknown;
 }
 

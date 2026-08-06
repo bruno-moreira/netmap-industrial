@@ -22,6 +22,10 @@ async function findAll(filters = {}, tenantId) {
     conditions.push(`d.status = $${idx++}`);
     params.push(filters.status);
   }
+  if (filters.nvd_id) {
+    conditions.push(`(d.metadata->>'nvd_device_id')::int = $${idx++}`);
+    params.push(Number(filters.nvd_id));
+  }
   if (filters.q) {
     conditions.push(
       `(d.name ILIKE $${idx} OR d.ip_address ILIKE $${idx} OR d.mac_address ILIKE $${idx} OR d.location ILIKE $${idx})`

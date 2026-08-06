@@ -76,6 +76,7 @@ const searchQuerySchema = z.object({
   q: z.string().min(1).optional(),
   type: z.string().optional(),
   status: z.string().optional(),
+  nvd_id: z.string().optional(),
 });
 
 export {

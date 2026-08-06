@@ -1,0 +1,68 @@
+# NetMap Industrial — Docker Compose Produção com Nginx Gateway
+# Uso: docker compose -f docker-compose.prod.yml up -d --build
+
+name: netmap-industrial-prod
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: netmap-db-prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+      POSTGRES_DB: ${DB_NAME:-netmap}
+    volumes:
+      - pgdata-prod:/var/lib/postgresql/data
+      - ./backend/db/bd.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-netmap}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: netmap-api-prod
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3002
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-changeme}
+      DB_NAME: ${DB_NAME:-netmap}
+      LOG_LEVEL: info
+      CORS_ORIGIN: '*'
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:3002/health || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  gateway:
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile.prod
+    container_name: netmap-gateway
+    restart: unless-stopped
+    ports:
+      # Expõe apenas UMA ÚNICA PORTA para todo o sistema (ex: 80 ou 8080)
+      - '${SYSTEM_PORT:-8080}:80'
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  pgdata-prod:
+    name: netmap-pgdata-prod
+
+networks:
+  default:
+    name: netmap-network-prod

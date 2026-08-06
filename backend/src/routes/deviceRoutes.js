@@ -65,6 +65,34 @@ const router = express.Router();
  *     responses:
  *       204:
  *         description: Removido
+ * /devices/snapshot-preview:
+ *   post:
+ *     tags: [Devices]
+ *     summary: Testar e obter preview de snapshot de câmera IP via HTTP
+ *     responses:
+ *       200:
+ *         description: Imagem em base64 Data URI
+ * /devices/{id}/snapshot:
+ *   post:
+ *     tags: [Devices]
+ *     summary: Capturar snapshot ao vivo de câmera cadastrada
+ *     responses:
+ *       200:
+ *         description: Equipamento atualizado com a foto
+ * /devices/{id}/discover-nvd-cameras:
+ *   post:
+ *     tags: [Devices]
+ *     summary: Descoberta automática de câmeras em gravador NVD Intelbras
+ *     responses:
+ *       200:
+ *         description: Lista de câmeras e modelo detectado (NVD 7132, NVD 3332, etc.)
+ * /devices/{id}/import-nvd-cameras:
+ *   post:
+ *     tags: [Devices]
+ *     summary: Importar em lote câmeras descobertas no NVD
+ *     responses:
+ *       201:
+ *         description: Câmeras criadas no inventário
  */
 
 router.use(authenticateToken);

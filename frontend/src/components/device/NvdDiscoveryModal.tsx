@@ -23,6 +23,7 @@ export function NvdDiscoveryModal({ nvdDevice, onClose, onSuccess }: NvdDiscover
   const [selectedChannels, setSelectedChannels] = useState<Set<number>>(new Set());
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [showDebug, setShowDebug] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -92,9 +93,14 @@ export function NvdDiscoveryModal({ nvdDevice, onClose, onSuccess }: NvdDiscover
             <h3 className="font-semibold text-white text-lg flex items-center gap-2">
               <HardDrive className="h-5 w-5 text-indigo-400" />
               Descoberta Automática de Câmeras
+              {discoverMutation.data?.detected_model && (
+                <span className="rounded bg-indigo-950 px-2 py-0.5 text-xs text-indigo-300 border border-indigo-800">
+                  {discoverMutation.data.detected_model}
+                </span>
+              )}
             </h3>
             <p className="text-xs text-slate-400 mt-0.5">
-              NVD: <strong className="text-slate-200">{nvdDevice.name}</strong> ({nvdDevice.ip_address || 'IP N/A'})
+              Gravador: <strong className="text-slate-200">{nvdDevice.name}</strong> ({nvdDevice.ip_address || 'IP N/A'})
             </p>
           </div>
           <button
@@ -186,9 +192,47 @@ export function NvdDiscoveryModal({ nvdDevice, onClose, onSuccess }: NvdDiscover
                           <Camera className="h-3 w-3" /> CH{c.channel}
                         </span>
                       </td>
-                      <td className="p-2.5 font-medium text-slate-200">{c.name}</td>
-                      <td className="p-2.5 font-mono text-slate-400">{c.ip_address || '—'}</td>
-                      <td className="p-2.5 font-mono text-slate-400">{c.mac_address || '—'}</td>
+                      <td className="p-2 text-slate-200" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="text"
+                          value={c.name}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setCameras((prev) =>
+                              prev.map((item) => (item.channel === c.channel ? { ...item, name: val } : item))
+                            );
+                          }}
+                          className="w-full rounded border border-slate-800 bg-slate-900 px-2 py-1 text-xs text-white focus:border-cyan-500 focus:outline-none"
+                        />
+                      </td>
+                      <td className="p-2 font-mono text-slate-300" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="text"
+                          value={c.ip_address}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setCameras((prev) =>
+                              prev.map((item) => (item.channel === c.channel ? { ...item, ip_address: val } : item))
+                            );
+                          }}
+                          placeholder="10.107.70.x"
+                          className="w-full rounded border border-slate-800 bg-slate-900 px-2 py-1 text-xs text-white focus:border-cyan-500 focus:outline-none font-mono"
+                        />
+                      </td>
+                      <td className="p-2 font-mono text-slate-300" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="text"
+                          value={c.mac_address}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setCameras((prev) =>
+                              prev.map((item) => (item.channel === c.channel ? { ...item, mac_address: val } : item))
+                            );
+                          }}
+                          placeholder="AA:BB:CC:DD:EE:FF"
+                          className="w-full rounded border border-slate-800 bg-slate-900 px-2 py-1 text-xs text-white focus:border-cyan-500 focus:outline-none font-mono"
+                        />
+                      </td>
                     </tr>
                   ))}
                   {cameras.length === 0 && (
@@ -209,14 +253,23 @@ export function NvdDiscoveryModal({ nvdDevice, onClose, onSuccess }: NvdDiscover
             )}
 
             <div className="flex items-center justify-between pt-2">
-              <button
-                type="button"
-                onClick={() => discoverMutation.mutate()}
-                className="flex items-center gap-2 rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs font-medium text-slate-300 hover:bg-slate-800"
-              >
-                <RefreshCw className={`h-3.5 w-3.5 ${discoverMutation.isPending ? 'animate-spin' : ''}`} />
-                Recarregar Busca
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => discoverMutation.mutate()}
+                  className="flex items-center gap-2 rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs font-medium text-slate-300 hover:bg-slate-800"
+                >
+                  <RefreshCw className={`h-3.5 w-3.5 ${discoverMutation.isPending ? 'animate-spin' : ''}`} />
+                  Recarregar Busca
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowDebug(!showDebug)}
+                  className="text-xs text-slate-400 hover:text-slate-200 underline"
+                >
+                  {showDebug ? 'Ocultar Diagnóstico' : 'Ver Diagnóstico NVD'}
+                </button>
+              </div>
 
               <button
                 type="button"
@@ -227,6 +280,13 @@ export function NvdDiscoveryModal({ nvdDevice, onClose, onSuccess }: NvdDiscover
                 {importMutation.isPending ? 'Importando...' : `Importar ${selectedChannels.size} Câmera(s)`}
               </button>
             </div>
+
+            {showDebug && discoverMutation.data?.debug_info && (
+              <div className="mt-3 rounded-lg border border-slate-800 bg-slate-950 p-3 max-h-48 overflow-y-auto font-mono text-[10px] text-slate-300">
+                <p className="font-bold text-cyan-400 mb-1">Diagnóstico de Resposta CGI Intelbras:</p>
+                <pre>{JSON.stringify(discoverMutation.data.debug_info, null, 2)}</pre>
+              </div>
+            )}
           </>
         )}
       </div>
