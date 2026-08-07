@@ -19,19 +19,19 @@ export function DeviceTable({
   onDiscoverNvd,
 }: DeviceTableProps) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm transition-colors">
-      <table className="w-full text-sm">
-        <thead className="bg-slate-50 dark:bg-slate-900 text-left text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+    <div className="max-h-[calc(100vh-260px)] min-h-[350px] overflow-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm transition-colors scrollbar-thin">
+      <table className="w-full text-sm border-collapse">
+        <thead className="sticky top-0 z-10 bg-slate-100 dark:bg-slate-900 text-left text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 shadow-xs">
           <tr>
-            <th className="p-3">Foto / Snapshot</th>
-            <th className="p-3">Nome</th>
-            <th className="p-3">Tipo</th>
-            <th className="p-3">IP</th>
-            <th className="p-3">MAC</th>
-            <th className="p-3">Local / NVD</th>
-            <th className="p-3">Conexão Switch</th>
-            <th className="p-3">Status</th>
-            <th className="p-3 w-28 text-right">Ações</th>
+            <th className="p-3 bg-slate-100 dark:bg-slate-900">Foto / Snapshot</th>
+            <th className="p-3 bg-slate-100 dark:bg-slate-900">Nome</th>
+            <th className="p-3 bg-slate-100 dark:bg-slate-900">Tipo</th>
+            <th className="p-3 bg-slate-100 dark:bg-slate-900">IP</th>
+            <th className="p-3 bg-slate-100 dark:bg-slate-900">MAC</th>
+            <th className="p-3 bg-slate-100 dark:bg-slate-900">Local / NVD</th>
+            <th className="p-3 bg-slate-100 dark:bg-slate-900">Conexão Switch</th>
+            <th className="p-3 bg-slate-100 dark:bg-slate-900">Status</th>
+            <th className="p-3 w-28 text-right bg-slate-100 dark:bg-slate-900">Ações</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
@@ -67,7 +67,7 @@ export function DeviceTable({
                     <button
                       type="button"
                       onClick={() => onEdit(d)}
-                      className="flex items-center justify-center w-10 h-10 rounded border border-dashed border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-500 hover:border-cyan-500 hover:text-cyan-600 dark:hover:text-cyan-400"
+                      className="flex items-center justify-center w-10 h-10 rounded border border-dashed border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-500 hover:border-cyan-500 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors"
                       title="Adicionar snapshot da câmera"
                     >
                       <Camera className="h-4 w-4" />
@@ -158,7 +158,7 @@ export function DeviceTable({
                       <button
                         type="button"
                         onClick={() => onDiscoverNvd(d)}
-                        className="rounded p-1 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-950/50"
+                        className="rounded p-1 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-950/50 transition-colors"
                         title="Descoberta Automática de Câmeras"
                       >
                         <Search className="h-4 w-4" />
@@ -167,7 +167,7 @@ export function DeviceTable({
                     <button
                       type="button"
                       onClick={() => onEdit(d)}
-                      className="text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400"
+                      className="text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors"
                       aria-label="Editar"
                     >
                       <Pencil className="h-4 w-4" />
@@ -175,7 +175,7 @@ export function DeviceTable({
                     <button
                       type="button"
                       onClick={() => onDelete(d.id)}
-                      className="text-slate-400 hover:text-red-600 dark:hover:text-red-400"
+                      className="text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                       aria-label="Excluir"
                     >
                       <Trash2 className="h-4 w-4" />
