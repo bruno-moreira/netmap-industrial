@@ -16,39 +16,63 @@ echo -e "${CYAN}======================================================"
 echo -e " 🚀 Iniciando Implantação do NetMap Industrial"
 echo -e "======================================================${NC}"
 
-# 1. Verificar se o Docker está instalado
-if ! command -v docker &> /dev/null; then
-    echo -e "${RED}Erro: Docker não encontrado. Por favor instale o Docker antes de continuar.${NC}"
+# 1. Detectar o comando correto do Docker Compose (v2 plugin ou v1 standalone)
+DOCKER_CMD=""
+
+if docker compose version &> /dev/null; then
+    DOCKER_CMD="docker compose"
+elif command -v docker-compose &> /dev/null; then
+    DOCKER_CMD="docker-compose"
+else
+    echo -e "${RED}Erro: Nem 'docker compose' nem 'docker-compose' foram encontrados no servidor.${NC}"
+    echo -e "${YELLOW}Por favor instale o Docker Compose no servidor antes de continuar.${NC}"
     exit 1
 fi
 
-# 2. Verificar arquivo de ambiente .env
+echo -e "${GREEN}Usando comando de implantação:${NC} $DOCKER_CMD"
+
+# 2. Verificar se o arquivo de ambiente .env existe
 if [ ! -f ".env" ]; then
     echo -e "${YELLOW}Criando arquivo de configuração .env a partir de .env_example...${NC}"
     cp .env_example .env
 fi
 
-# 3. Subir os contêineres em segundo plano (build + start)
-echo -e "${CYAN}Construindo e iniciando contêineres Docker (DB, API, Frontend)...${NC}"
-docker compose up -d --build
+# 3. Escolher o arquivo compose (Produção com Nginx Gateway se existir, ou padrão)
+COMPOSE_FILE_OPTION=""
+if [ -f "docker-compose.prod.yml" ]; then
+    COMPOSE_FILE_OPTION="-f docker-compose.prod.yml"
+    echo -e "${CYAN}Modo Produção ativado com Nginx Single-Port Gateway (docker-compose.prod.yml)${NC}"
+fi
 
-# 4. Aguardar o banco de dados e a API ficarem saudáveis
-echo -e "${YELLOW}Aguardando inicialização do banco de dados e serviços...${NC}"
+# 4. Subir os contêineres em segundo plano (build + start)
+echo -e "${CYAN}Construindo e iniciando contêineres Docker (DB, API, Frontend)...${NC}"
+$DOCKER_CMD $COMPOSE_FILE_OPTION up -d --build
+
+# 5. Aguardar a inicialização do banco de dados e da API
+echo -e "${YELLOW}Aguardando inicialização dos serviços...${NC}"
 sleep 5
 
-# 5. Executar Migrações e Seeds no banco
-echo -e "${CYAN}Executando migrações e dados iniciais no banco de dados...${NC}"
-docker compose exec -T api npm run migrate:latest || true
-docker compose exec -T api npm run seed:run || true
+# 6. Executar Migrações e Seeds no banco
+echo -e "${CYAN}Executando migrações de schema e dados iniciais no banco de dados...${NC}"
+$DOCKER_CMD $COMPOSE_FILE_OPTION exec -T api npm run migrate:latest || true
+$DOCKER_CMD $COMPOSE_FILE_OPTION exec -T api npm run seed:run || true
 
 echo -e "${GREEN}======================================================"
 echo -e " ✅ NetMap Industrial Implantado com Sucesso!"
 echo -e "======================================================${NC}"
 echo -e "${CYAN}Serviços disponíveis:${NC}"
-echo -e "  • Frontend Web:  ${GREEN}http://localhost:5173${NC} (ou IP do seu servidor)"
-echo -e "  • API Backend:   ${GREEN}http://localhost:3002${NC}"
-echo -e "  • Documentação:  ${GREEN}http://localhost:3002/docs${NC}"
+
+if [ -f "docker-compose.prod.yml" ]; then
+    echo -e "  • Aplicação (Gateway Nginx): ${GREEN}http://<IP-DO-SERVIDOR>:8080${NC}"
+    echo -e "  • API Backend (Proxy Nginx): ${GREEN}http://<IP-DO-SERVIDOR>:8080/api${NC}"
+    echo -e "  • Documentação API Swagger:  ${GREEN}http://<IP-DO-SERVIDOR>:8080/docs${NC}"
+else
+    echo -e "  • Frontend Web:  ${GREEN}http://<IP-DO-SERVIDOR>:5173${NC}"
+    echo -e "  • API Backend:   ${GREEN}http://<IP-DO-SERVIDOR>:3002${NC}"
+    echo -e "  • Documentação:  ${GREEN}http://<IP-DO-SERVIDOR>:3002/docs${NC}"
+fi
+
 echo -e ""
-echo -e "${YELLOW}Para monitorar os logs:${NC} docker compose logs -f"
-echo -e "${YELLOW}Para parar os serviços:${NC} docker compose down"
+echo -e "${YELLOW}Para monitorar os logs:${NC} $DOCKER_CMD $COMPOSE_FILE_OPTION logs -f"
+echo -e "${YELLOW}Para parar os serviços:${NC} $DOCKER_CMD $COMPOSE_FILE_OPTION down"
 echo -e "======================================================"
