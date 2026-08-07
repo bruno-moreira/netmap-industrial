@@ -52,14 +52,20 @@ fi
 echo -e "${CYAN}Construindo e iniciando contêineres Docker (DB, API, Gateway)...${NC}"
 $DOCKER_CMD $COMPOSE_FILE_OPTION up -d --build
 
-# 5. Aguardar a inicialização do banco de dados e da API
-echo -e "${YELLOW}Aguardando inicialização dos serviços...${NC}"
-sleep 5
+# 5. Aguardar a API ficar 100% pronta e conectada ao Banco
+echo -e "${YELLOW}Aguardando serviços ficarem totalmente operacionais...${NC}"
+MAX_RETRIES=20
+COUNT=0
+until $DOCKER_CMD $COMPOSE_FILE_OPTION exec -T api wget -qO- http://127.0.0.1:3002/health &> /dev/null || [ $COUNT -eq $MAX_RETRIES ]; do
+    echo -e "${YELLOW}Conectando ao contêiner da API... (Tentativa $((COUNT+1))/${MAX_RETRIES})${NC}"
+    sleep 3
+    COUNT=$((COUNT+1))
+done
 
 # 6. Executar Migrações e Seeds no banco
-echo -e "${CYAN}Executando migrações de schema e dados iniciais no banco de dados...${NC}"
-$DOCKER_CMD $COMPOSE_FILE_OPTION exec -T api npm run migrate:latest || true
-$DOCKER_CMD $COMPOSE_FILE_OPTION exec -T api npm run seed:run || true
+echo -e "${CYAN}Populando tabelas e criando usuário inicial admin...${NC}"
+$DOCKER_CMD $COMPOSE_FILE_OPTION exec -T api npm run migrate:latest
+$DOCKER_CMD $COMPOSE_FILE_OPTION exec -T api npm run seed:run
 
 echo -e "${GREEN}======================================================"
 echo -e " ✅ NetMap Industrial Implantado com Sucesso!"
@@ -76,6 +82,10 @@ else
     echo -e "  • Documentação:  ${GREEN}http://<IP-DO-SERVIDOR>:3002/docs${NC}"
 fi
 
+echo -e ""
+echo -e "${CYAN}Usuários Padrão para Login:${NC}"
+echo -e "  • Email: ${GREEN}admin@empresa-exemplo.com${NC} | Senha: ${GREEN}admin123${NC}"
+echo -e "  • Email: ${GREEN}root@netmap.local${NC}          | Senha: ${GREEN}root123${NC}"
 echo -e ""
 echo -e "${YELLOW}Para monitorar os logs:${NC} $DOCKER_CMD $COMPOSE_FILE_OPTION logs -f"
 echo -e "${YELLOW}Para parar os serviços:${NC} $DOCKER_CMD $COMPOSE_FILE_OPTION down"
