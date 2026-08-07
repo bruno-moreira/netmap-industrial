@@ -4,6 +4,9 @@ WORKDIR /app
 COPY frontend/package*.json ./
 RUN npm install
 COPY frontend/ .
+
+# Força o uso da URL relativa /api na compilação de produção
+ENV VITE_API_URL=/api
 RUN npm run build
 
 # Etapa 2: Nginx ultraleve para produção

@@ -89,4 +89,4 @@ echo -e "  • Email: ${GREEN}root@netmap.local${NC}          | Senha: ${GREEN}r
 echo -e ""
 echo -e "${YELLOW}Para monitorar os logs:${NC} $DOCKER_CMD $COMPOSE_FILE_OPTION logs -f"
 echo -e "${YELLOW}Para parar os serviços:${NC} $DOCKER_CMD $COMPOSE_FILE_OPTION down"
-echo -e "======================================================"
+echo -e "${GREEN}======================================================${NC}"
