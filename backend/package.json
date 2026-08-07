@@ -34,6 +34,7 @@
     "express-rate-limit": "^7.5.0",
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.3",
+    "knex": "^3.1.0",
     "net-snmp": "^3.26.3",
     "pg": "^8.13.1",
     "pino": "^9.6.0",
@@ -44,7 +45,6 @@
   "devDependencies": {
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
-    "knex": "^3.1.0",
     "nodemon": "^3.1.9",
     "prettier": "^3.4.2"
   }
