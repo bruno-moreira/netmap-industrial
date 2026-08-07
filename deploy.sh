@@ -37,15 +37,19 @@ if [ ! -f ".env" ]; then
     cp .env_example .env
 fi
 
+# Carregar variáveis do .env
+export $(grep -v '^#' .env | xargs) 2>/dev/null || true
+PORT_USED="${SYSTEM_PORT:-8082}"
+
 # 3. Escolher o arquivo compose (Produção com Nginx Gateway se existir, ou padrão)
 COMPOSE_FILE_OPTION=""
 if [ -f "docker-compose.prod.yml" ]; then
     COMPOSE_FILE_OPTION="-f docker-compose.prod.yml"
-    echo -e "${CYAN}Modo Produção ativado com Nginx Single-Port Gateway (docker-compose.prod.yml)${NC}"
+    echo -e "${CYAN}Modo Produção ativado com Nginx Single-Port Gateway (Porta Externa: ${PORT_USED})${NC}"
 fi
 
 # 4. Subir os contêineres em segundo plano (build + start)
-echo -e "${CYAN}Construindo e iniciando contêineres Docker (DB, API, Frontend)...${NC}"
+echo -e "${CYAN}Construindo e iniciando contêineres Docker (DB, API, Gateway)...${NC}"
 $DOCKER_CMD $COMPOSE_FILE_OPTION up -d --build
 
 # 5. Aguardar a inicialização do banco de dados e da API
@@ -63,9 +67,9 @@ echo -e "======================================================${NC}"
 echo -e "${CYAN}Serviços disponíveis:${NC}"
 
 if [ -f "docker-compose.prod.yml" ]; then
-    echo -e "  • Aplicação (Gateway Nginx): ${GREEN}http://<IP-DO-SERVIDOR>:8080${NC}"
-    echo -e "  • API Backend (Proxy Nginx): ${GREEN}http://<IP-DO-SERVIDOR>:8080/api${NC}"
-    echo -e "  • Documentação API Swagger:  ${GREEN}http://<IP-DO-SERVIDOR>:8080/docs${NC}"
+    echo -e "  • Aplicação (Gateway Nginx): ${GREEN}http://<IP-DO-SERVIDOR>:${PORT_USED}${NC}"
+    echo -e "  • API Backend (Proxy Nginx): ${GREEN}http://<IP-DO-SERVIDOR>:${PORT_USED}/api${NC}"
+    echo -e "  • Documentação API Swagger:  ${GREEN}http://<IP-DO-SERVIDOR>:${PORT_USED}/docs${NC}"
 else
     echo -e "  • Frontend Web:  ${GREEN}http://<IP-DO-SERVIDOR>:5173${NC}"
     echo -e "  • API Backend:   ${GREEN}http://<IP-DO-SERVIDOR>:3002${NC}"
