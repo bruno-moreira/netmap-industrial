@@ -21,7 +21,6 @@ services:
       - '${DB_PORT:-5434}:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./backend/db/bd.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-netmap}']
       interval: 5s

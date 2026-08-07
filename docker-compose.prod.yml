@@ -14,7 +14,6 @@ services:
       POSTGRES_DB: ${DB_NAME:-netmap}
     volumes:
       - pgdata-prod:/var/lib/postgresql/data
-      - ./backend/db/bd.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-netmap}']
       interval: 5s
@@ -53,8 +52,8 @@ services:
     container_name: netmap-gateway
     restart: unless-stopped
     ports:
-      # Expõe apenas UMA ÚNICA PORTA para todo o sistema (ex: 80 ou 8080)
-      - '${SYSTEM_PORT:-8080}:80'
+      # Expõe apenas UMA ÚNICA PORTA para todo o sistema (ex: 8082 ou 80)
+      - '${SYSTEM_PORT:-8082}:80'
     depends_on:
       api:
         condition: service_healthy
